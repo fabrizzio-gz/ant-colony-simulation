@@ -18,14 +18,12 @@ along with this software.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 // globals
-let grid = [];
+let world;
 const CELL_SIZE = 5;
 const GRID_W = 100;
 const GRID_H = 100;
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
-
-let nest;
 
 function setup() {
   createCanvas(700, 700);
@@ -34,33 +32,67 @@ function setup() {
   background(48, 2, 98);
   stroke(0, 0, 80);
 
-  // Initialize grid with empty cells
-  for (let x = 0; x < GRID_W; x++) {
-    grid.push([]); // add cols
-    for (let y = 0; y < GRID_H; y++) {
-      grid[x][y] = new Cell(x, y);
+  world = new World();
+  // world.initialRender();
+}
+
+class World {
+  constructor(
+    initValues = {
+      gridX: GRID_W,
+      gridY: GRID_H,
+      ants: 50,
+      nestX: 3,
+      nestY: 3,
+      food: 5,
     }
+  ) {
+    const { gridX, gridY, ants, nestX, nestY, food } = initValues;
+    this.gridX = gridX;
+    this.gridY = gridY;
+    this.grid = this.initGrid(gridX, gridY);
+    this.nest = this.initNest(nestX, nestY);
+    this.initFood(food, this.grid);
+    this.ants = this.initAnts(ants);
   }
 
-  // Add ants
-  for (let x = 0; x < GRID_W - 20; x += 5) {
-    grid.push([]); // add cols
-    for (let y = 0; y < GRID_H - 80; y += 5) {
-      grid[x][y] = new Ant(x, y);
+  initGrid(gridX, gridY) {
+    let grid = [];
+    for (let x = 0; x < gridX; x++) {
+      grid.push([]); // add cols
+      for (let y = 0; y < gridY; y++) grid[x][y] = new Cell(x, y);
     }
+
+    return grid;
   }
 
-  // Add food
-  for (let x = 80; x < GRID_W; x += 1) {
-    grid.push([]); // add cols
-    for (let y = 80; y < GRID_H; y += 1) {
-      grid[x][y] = new Food(x, y);
-    }
+  initNest(nestX, nestY) {
+    this.grid[nestX][nestY] = new Nest(nestX, nestY);
   }
 
-  // Add nest
-  nest = new Nest(3, 3);
-  grid[3][3] = nest;
+  initAnts(ants) {
+    const antsArray = [];
+    let newAnt;
+    for (let x = 0; x < Math.round((this.gridX * 4) / 5) && ants; x += 5)
+      for (let y = 0; y < Math.round(this.gridY / 5) && ants; y += 5, ants--) {
+        newAnt = new Ant(x, y);
+        antsArray.push(newAnt);
+        this.grid[x][y] = newAnt;
+      }
+
+    return antsArray;
+  }
+
+  initFood(food) {
+    for (let x = this.gridX - 1; x >= this.gridX - food; x--)
+      for (let y = this.gridY - 1; y >= this.gridY - food; y--)
+        this.grid[x][y] = new Food(x, y);
+  }
+
+  render() {
+    for (let x = 0; x < this.gridX; x++)
+      for (let y = 0; y < this.gridY; y++) this.grid[x][y].render();
+  }
 }
 
 class Cell {
@@ -281,10 +313,11 @@ function draw() {
   background(48, 2, 98);
 
   // update then render each grid item
-  for (let x = 0; x < grid.length; x++) {
+  world.render();
+  /* for (let x = 0; x < grid.length; x++) {
     for (let y = 0; y < grid[x].length; y++) {
       grid[x][y].update();
       grid[x][y].render();
     }
-  }
+  }*/
 }
