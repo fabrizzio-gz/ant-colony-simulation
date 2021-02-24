@@ -44,7 +44,7 @@ class World {
       ants: 50,
       nestX: 3,
       nestY: 3,
-      food: 5,
+      food: 80,
     }
   ) {
     const { gridX, gridY, ants, nestX, nestY, food } = initValues;
@@ -67,7 +67,9 @@ class World {
   }
 
   initNest(nestX, nestY) {
-    this.grid[nestX][nestY] = new Nest(nestX, nestY);
+    const nest = new Nest(nestX, nestY);
+    this.grid[nestX][nestY] = nest;
+    return nest;
   }
 
   initAnts(ants) {
@@ -135,15 +137,15 @@ class Ant extends Cell {
     let new_x = this.position.x;
     let new_y = this.position.y;
 
-    if (this.position.x < nest.position.x) {
+    if (this.position.x < world.nest.position.x) {
       new_x = this.position.x + 1;
-    } else if (this.position.x > nest.position.x) {
+    } else if (this.position.x > world.nest.position.x) {
       new_x = this.position.x - 1;
     }
 
-    if (this.position.y < nest.position.y) {
+    if (this.position.y < world.nest.position.y) {
       new_y = this.position.y + 1;
-    } else if (this.position.y > nest.position.y) {
+    } else if (this.position.y > world.nest.position.y) {
       new_y = this.position.y - 1;
     }
 
@@ -182,17 +184,15 @@ class Ant extends Cell {
     // Check collisions before moving
     let landed_on = world.grid[new_x][new_y]; // [Cell]
 
-    for (let c = 0; c < landed_on.length; c++) {
-      if (landed_on[c].type == "Food") {
-        this.state = DELIVERY_MODE;
+    if (landed_on.type == "Food") {
+      this.state = DELIVERY_MODE;
 
-        // Remove food cell
-        world.grid[new_x][new_y] = new Cell(new_x, new_y);
-      } else if (landed_on.type == "Pheromone") {
-        // Consume pheromone
-        world.grid[new_x][new_y] = new Cell(new_x, new_y);
-      } else if (landed_on.type == "Ant") {
-      }
+      // Remove food cell
+      world.grid[new_x][new_y] = new Cell(new_x, new_y);
+    } else if (landed_on.type == "Pheromone") {
+      // Consume pheromone
+      world.grid[new_x][new_y] = new Cell(new_x, new_y);
+    } else if (landed_on.type == "Ant") {
     }
 
     // Ant can only carry food when scavenging
@@ -316,10 +316,4 @@ class Pheromone extends Cell {
 function draw() {
   world.update();
   world.render();
-  /* for (let x = 0; x < world.grid.length; x++) {
-    for (let y = 0; y < world.grid[x].length; y++) {
-      world.grid[x][y].update();
-      world.grid[x][y].render();
-    }
-  }*/
 }
