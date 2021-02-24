@@ -33,7 +33,7 @@ function setup() {
   stroke(0, 0, 80);
 
   world = new World();
-  // world.initialRender();
+  world.render();
 }
 
 class World {
@@ -57,7 +57,7 @@ class World {
   }
 
   initGrid(gridX, gridY) {
-    let grid = [];
+    const grid = [];
     for (let x = 0; x < gridX; x++) {
       grid.push([]); // add cols
       for (let y = 0; y < gridY; y++) grid[x][y] = new Cell(x, y);
@@ -72,13 +72,9 @@ class World {
 
   initAnts(ants) {
     const antsArray = [];
-    let newAnt;
     for (let x = 0; x < Math.round((this.gridX * 4) / 5) && ants; x += 5)
-      for (let y = 0; y < Math.round(this.gridY / 5) && ants; y += 5, ants--) {
-        newAnt = new Ant(x, y);
-        antsArray.push(newAnt);
-        this.grid[x][y] = newAnt;
-      }
+      for (let y = 0; y < Math.round(this.gridY / 5) && ants; y += 5, ants--)
+        antsArray.push(new Ant(x, y));
 
     return antsArray;
   }
@@ -89,9 +85,17 @@ class World {
         this.grid[x][y] = new Food(x, y);
   }
 
+  update() {
+    for (let x = 0; x < this.gridX; x++)
+      for (let y = 0; y < this.gridY; y++) this.grid[x][y].update();
+
+    this.ants.forEach((ant) => ant.update());
+  }
+
   render() {
     for (let x = 0; x < this.gridX; x++)
       for (let y = 0; y < this.gridY; y++) this.grid[x][y].render();
+    this.ants.forEach((ant) => ant.render());
   }
 }
 
@@ -106,7 +110,7 @@ class Cell {
   update() {}
 
   render() {
-    noFill();
+    fill(48, 2, 98);
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
 }
@@ -150,7 +154,7 @@ class Ant extends Cell {
     new_y = constrain(new_y, 0, GRID_H - 1);
 
     // Check collisions before moving
-    let landed_on = grid[new_x][new_y];
+    let landed_on = world.grid[new_x][new_y];
 
     if (landed_on.type == "Nest") {
       this.state = SCAVENGER_MODE;
@@ -176,17 +180,17 @@ class Ant extends Cell {
     new_y = constrain(new_y, 0, GRID_H - 1);
 
     // Check collisions before moving
-    let landed_on = grid[new_x][new_y]; // [Cell]
+    let landed_on = world.grid[new_x][new_y]; // [Cell]
 
     for (let c = 0; c < landed_on.length; c++) {
       if (landed_on[c].type == "Food") {
         this.state = DELIVERY_MODE;
 
         // Remove food cell
-        grid[new_x][new_y] = new Cell(new_x, new_y);
+        world.grid[new_x][new_y] = new Cell(new_x, new_y);
       } else if (landed_on.type == "Pheromone") {
         // Consume pheromone
-        grid[new_x][new_y] = new Cell(new_x, new_y);
+        world.grid[new_x][new_y] = new Cell(new_x, new_y);
       } else if (landed_on.type == "Ant") {
       }
     }
@@ -199,7 +203,7 @@ class Ant extends Cell {
   }
 
   place_pheromone(prev_x, prev_y) {
-    grid[prev_x][prev_y] = new Pheromone(prev_x, prev_y);
+    world.grid[prev_x][prev_y] = new Pheromone(prev_x, prev_y);
   }
 
   seek_pheromone() {
@@ -231,11 +235,11 @@ class Ant extends Cell {
     // Get the max nearby pheromone
     let freshness = 0;
     let random_neighbor = random(nearby);
-    let max_pheromone = grid[random_neighbor.x][random_neighbor.y];
+    let max_pheromone = world.grid[random_neighbor.x][random_neighbor.y];
     for (let i = 0; i < nearby.length; i++) {
       let nx = nearby[i].x;
       let ny = nearby[i].y;
-      let cell = grid[nx][ny];
+      let cell = world.grid[nx][ny];
       if (cell.type === "Pheromone") {
         if (cell.freshness > freshness) {
           freshness = cell.freshness;
@@ -292,9 +296,9 @@ class Pheromone extends Cell {
   }
 
   update() {
-    // If the pheromone is depleted, clear this grid cell.
+    // If the pheromone is depleted, clear this world.grid cell.
     if (this.freshness === 0) {
-      grid[this.position.x][this.position.y] = new Cell(
+      world.grid[this.position.x][this.position.y] = new Cell(
         this.position.x,
         this.position.y
       );
@@ -310,14 +314,12 @@ class Pheromone extends Cell {
 }
 
 function draw() {
-  background(48, 2, 98);
-
-  // update then render each grid item
+  world.update();
   world.render();
-  /* for (let x = 0; x < grid.length; x++) {
-    for (let y = 0; y < grid[x].length; y++) {
-      grid[x][y].update();
-      grid[x][y].render();
+  /* for (let x = 0; x < world.grid.length; x++) {
+    for (let y = 0; y < world.grid[x].length; y++) {
+      world.grid[x][y].update();
+      world.grid[x][y].render();
     }
   }*/
 }
