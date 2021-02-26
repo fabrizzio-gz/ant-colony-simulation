@@ -107,8 +107,12 @@ class Cell {
     this.size = CELL_SIZE;
     this.type = "Cell"; // a hack because I don't know how to do pattern
     // matching on types in js yet (is it possible?)
+    this.steps = 0;
   }
 
+  addStep() {
+    this.steps++;
+  }
   update() {}
 
   render() {
@@ -126,6 +130,7 @@ class Ant extends Cell {
   }
 
   update() {
+    world.grid[this.position.x][this.position.y].addStep();
     if (this.state === DELIVERY_MODE) {
       this.deliver_food();
     } else if (this.state === SCAVENGER_MODE) {
