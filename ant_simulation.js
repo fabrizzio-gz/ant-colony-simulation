@@ -42,9 +42,9 @@ class World {
       gridX: GRID_W,
       gridY: GRID_H,
       ants: 50,
-      nestX: 3,
-      nestY: 3,
-      food: 80,
+      nestX: 50,
+      nestY: 50,
+      food: 0,
     }
   ) {
     const { gridX, gridY, ants, nestX, nestY, food } = initValues;
@@ -52,7 +52,7 @@ class World {
     this.gridY = gridY;
     this.grid = this.initGrid(gridX, gridY);
     this.nest = this.initNest(nestX, nestY);
-    this.initFood(food, this.grid);
+    if (food) this.initFood(food, this.grid);
     this.ants = this.initAnts(ants);
   }
 
@@ -74,9 +74,9 @@ class World {
 
   initAnts(ants) {
     const antsArray = [];
-    for (let x = 0; x < Math.round((this.gridX * 4) / 5) && ants; x += 5)
-      for (let y = 0; y < Math.round(this.gridY / 5) && ants; y += 5, ants--)
-        antsArray.push(new Ant(x, y));
+    for (; ants; )
+      for (; ants; ants--)
+        antsArray.push(new Ant(this.nest.position.x, this.nest.position.y));
 
     return antsArray;
   }
@@ -98,6 +98,8 @@ class World {
     for (let x = 0; x < this.gridX; x++)
       for (let y = 0; y < this.gridY; y++) this.grid[x][y].render();
     this.ants.forEach((ant) => ant.render());
+    // Always render nest on top
+    this.nest.render();
   }
 }
 
