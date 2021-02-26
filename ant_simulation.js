@@ -44,7 +44,7 @@ class World {
       ants: 50,
       nestX: 50,
       nestY: 50,
-      food: 0,
+      food: 40,
     }
   ) {
     const { gridX, gridY, ants, nestX, nestY, food } = initValues;
@@ -180,10 +180,10 @@ class Ant extends Cell {
   }
 
   scavenge() {
-    let max_pheromone = this.seek_pheromone();
+    let min_pheromone = this.seek_pheromone();
     // move by 1 unit exactly in a random direction
-    let new_x = max_pheromone.position.x;
-    let new_y = max_pheromone.position.y;
+    let new_x = min_pheromone.position.x;
+    let new_y = min_pheromone.position.y;
 
     new_x = constrain(new_x, 0, GRID_W - 1);
     new_y = constrain(new_y, 0, GRID_H - 1);
@@ -239,22 +239,22 @@ class Ant extends Cell {
       nearby[i].y = constrain(nearby[i].y, 0, GRID_H - 1);
     }
 
-    // Get the max nearby pheromone
-    let freshness = 0;
+    // Get the min nearby pheromone
+    let freshness = 1000;
     let random_neighbor = random(nearby);
-    let max_pheromone = world.grid[random_neighbor.x][random_neighbor.y];
+    let min_pheromone = world.grid[random_neighbor.x][random_neighbor.y];
     for (let i = 0; i < nearby.length; i++) {
       let nx = nearby[i].x;
       let ny = nearby[i].y;
       let cell = world.grid[nx][ny];
       if (cell.type === "Pheromone") {
-        if (cell.freshness > freshness) {
+        if (cell.freshness < freshness) {
           freshness = cell.freshness;
-          max_pheromone = cell;
+          min_pheromone = cell;
         }
       }
     }
-    return max_pheromone;
+    return min_pheromone;
   }
 
   render() {
@@ -285,6 +285,7 @@ class Nest extends Cell {
   constructor(x, y) {
     super(x, y);
     this.type = "Nest";
+    this.steps = 1000; // To make ants return to it
   }
 
   update() {}
