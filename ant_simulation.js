@@ -19,6 +19,7 @@ along with this software.  If not, see <https://www.gnu.org/licenses/>.
 
 // globals
 let world;
+let stop = false;
 const CELL_SIZE = 5;
 const GRID_W = 100;
 const GRID_H = 100;
@@ -104,12 +105,12 @@ class World {
 }
 
 class Cell {
-  constructor(x, y) {
+  constructor(x, y, steps = 0) {
     this.position = createVector(x, y);
     this.size = CELL_SIZE;
     this.type = "Cell"; // a hack because I don't know how to do pattern
     // matching on types in js yet (is it possible?)
-    this.steps = 0;
+    this.steps = steps;
   }
 
   addStep() {
@@ -300,7 +301,7 @@ class Pheromone extends Cell {
   constructor(x, y) {
     super(x, y);
     this.type = "Pheromone";
-    this.freshness = 50;
+    this.freshness = world.gridX + world.gridY;
   }
 
   update() {
@@ -308,7 +309,8 @@ class Pheromone extends Cell {
     if (this.freshness === 0) {
       world.grid[this.position.x][this.position.y] = new Cell(
         this.position.x,
-        this.position.y
+        this.position.y,
+        this.steps
       );
     } else {
       this.freshness -= 1;
@@ -322,6 +324,7 @@ class Pheromone extends Cell {
 }
 
 function draw() {
+  if (stop) return;
   world.update();
   world.render();
 }
@@ -329,4 +332,14 @@ function draw() {
 // fast-forward
 const ff = () => {
   for (let i = 0; i < 1000; i++) world.update();
+};
+
+// stop simulation
+const s = () => {
+  stop = true;
+};
+
+// resume simulation
+const r = () => {
+  stop = false;
 };
