@@ -116,7 +116,7 @@ class Cell {
   update() {}
 
   render() {
-    fill(48, 2, 98);
+    fill(48, 2, Math.max(98 - this.steps, 20)); // Make darker with more steps
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
 }
