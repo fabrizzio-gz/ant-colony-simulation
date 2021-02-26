@@ -322,3 +322,8 @@ function draw() {
   world.update();
   world.render();
 }
+
+// fast-forward
+const ff = () => {
+  for (let i = 0; i < 1000; i++) world.update();
+};
