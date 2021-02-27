@@ -249,7 +249,7 @@ class Ant extends Cell {
       let nx = nearby[i].x;
       let ny = nearby[i].y;
       let cell = world.grid[nx][ny];
-      if (cell.type === "Pheromone") {
+      if (cell.type === "Pheromone" || cell.type == "Food") {
         if (cell.freshness < freshness) {
           freshness = cell.freshness;
           min_pheromone = cell;
@@ -273,6 +273,7 @@ class Food extends Cell {
   constructor(x, y) {
     super(x, y);
     this.type = "Food";
+    this.freshness = 0; // To make ants choose it after pheromones
   }
 
   update() {}
