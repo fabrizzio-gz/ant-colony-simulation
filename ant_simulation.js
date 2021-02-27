@@ -200,9 +200,8 @@ class Ant extends Cell {
       // Remove food cell
       world.grid[new_x][new_y] = new Cell(new_x, new_y);
     } else if (landed_on.type == "Pheromone") {
-      // Consume pheromone
-      world.grid[new_x][new_y] = new Cell(new_x, new_y);
-    } else if (landed_on.type == "Ant") {
+      // Don't consume pheromone
+      // world.grid[new_x][new_y] = new Cell(new_x, new_y);
     }
 
     // Ant can only carry food when scavenging
