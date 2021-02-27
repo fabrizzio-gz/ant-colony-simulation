@@ -131,10 +131,11 @@ class Ant extends Cell {
     super(x, y);
     this.type = "Ant";
     this.state = SCAVENGER_MODE;
-    this.next_position = createVector(x, y); // TODO
+    this.prevPosition = createVector(-1, -1); // TODO
   }
 
   update() {
+    this.prevPosition = this.position;
     world.grid[this.position.x][this.position.y].addStep();
     if (this.state === DELIVERY_MODE) {
       this.deliver_food();
@@ -253,8 +254,12 @@ class Ant extends Cell {
       // Remove food cell
       world.grid[new_x][new_y] = new Cell(new_x, new_y);
     } else if (landed_on.type == "Pheromone") {
-      // Don't consume pheromone
-      // world.grid[new_x][new_y] = new Cell(new_x, new_y);
+      // Consume pheromone (test without consuming too)
+      world.grid[new_x][new_y] = new Cell(
+        new_x,
+        new_y,
+        world.grid[new_x][new_y].steps
+      );
     }
 
     // Ant can only carry food when scavenging
@@ -295,7 +300,8 @@ class Ant extends Cell {
     }
 
     // Get the min nearby pheromone
-    let freshness = 1000;
+    let freshness =
+      world.grid[this.position.x][this.position.y].freshness ?? 1000;
     let random_neighbor = random(nearby);
     let min_pheromone = world.grid[random_neighbor.x][random_neighbor.y];
     for (let i = 0; i < nearby.length; i++) {
@@ -356,7 +362,7 @@ class Pheromone extends Cell {
   constructor(x, y) {
     super(x, y);
     this.type = "Pheromone";
-    this.freshness = world.gridX + world.gridY;
+    this.freshness = 50;
   }
 
   update() {
