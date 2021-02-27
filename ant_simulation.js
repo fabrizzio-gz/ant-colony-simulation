@@ -20,6 +20,8 @@ along with this software.  If not, see <https://www.gnu.org/licenses/>.
 // globals
 let world;
 let stop = false;
+let slow = false;
+let slowCounter = 0;
 const CELL_SIZE = 5;
 const GRID_W = 100;
 const GRID_H = 100;
