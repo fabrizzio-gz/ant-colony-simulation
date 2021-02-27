@@ -144,6 +144,10 @@ class Ant extends Cell {
   }
 
   deliver_food() {
+    const prev_x = this.position.x;
+    const prev_y = this.position.y;
+    const nextCell = this.getHighestStep();
+    /*
     let new_x = this.position.x;
     let new_y = this.position.y;
 
@@ -162,24 +166,73 @@ class Ant extends Cell {
     let prev_x = this.position.x;
     let prev_y = this.position.y;
 
+    
     new_x = constrain(new_x, 0, GRID_W - 1);
     new_y = constrain(new_y, 0, GRID_H - 1);
 
     // Check collisions before moving
     let landed_on = world.grid[new_x][new_y];
-
-    if (landed_on.type == "Nest") {
+    */
+    if (nextCell.type == "Nest") {
       this.state = SCAVENGER_MODE;
     }
 
-    this.position.x = new_x;
-    this.position.y = new_y;
+    this.position.x = nextCell.position.x;
+    this.position.y = nextCell.position.y;
 
     // Place pheromone on the previous position only if the ant isn't still
     // on that position.
-    if (!(prev_x === new_x && prev_y === new_y)) {
+    if (!(prev_x === this.position.x && prev_y === this.position.y))
       this.place_pheromone(prev_x, prev_y);
+  }
+
+  getHighestStep() {
+    let x = this.position.x;
+    let y = this.position.y;
+
+    // Get the locations of nearby cells
+    // Verify constraints later on.
+    let nearby = [
+      createVector(x - 1, y - 1),
+      createVector(x, y - 1),
+      createVector(x + 1, y - 1),
+
+      createVector(x - 1, y),
+      createVector(x + 1, y),
+
+      createVector(x - 1, y + 1),
+      createVector(x, y + 1),
+      createVector(x + 1, y + 1),
+    ];
+
+    // Constrain locations within the canvas
+    // subtract 1 because of inclusive `constrain`
+    // (we want from: inclusive, to: exclusive)
+    for (let i = 0; i < nearby.length; i++) {
+      nearby[i].x = constrain(nearby[i].x, 0, GRID_W - 1);
+      nearby[i].y = constrain(nearby[i].y, 0, GRID_H - 1);
     }
+
+    // Constrain to only "Cell" or "Pheromones"
+    const nearbyCells = [];
+    for (let i = 0; i < nearby.length; i++)
+      if (
+        ["Cell", "Pheromone"].includes(
+          world.grid[nearby[i].x][nearby[i].y].type
+        )
+      )
+        nearbyCells.push(world.grid[nearby[i].x][nearby[i].y]);
+      else if (world.grid[nearby[i].x][nearby[i].y].type == "Nest")
+        // Go back to nest as soon as it's found
+        return world.grid[nearby[i].x][nearby[i].y];
+
+    // debugger;
+    // Get the nearest cell with highest Step
+    let max_step = random(nearbyCells);
+    for (const cell of nearbyCells)
+      if (cell.steps > max_step.steps) max_step = cell;
+
+    return max_step;
   }
 
   scavenge() {
