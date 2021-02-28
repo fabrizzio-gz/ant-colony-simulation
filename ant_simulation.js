@@ -147,11 +147,10 @@ class Ant extends Cell {
     super(x, y);
     this.type = "Ant";
     this.state = SCAVENGER_MODE;
-    this.prevPosition = createVector(-1, -1); // TODO
+    this.prevPosition = createVector(-1, -1);
   }
 
   update() {
-    this.prevPosition = this.position;
     world.grid[this.position.x][this.position.y].addStep();
     if (this.state === DELIVERY_MODE) {
       this.deliver_food();
@@ -164,32 +163,7 @@ class Ant extends Cell {
     const prev_x = this.position.x;
     const prev_y = this.position.y;
     const nextCell = this.getHighestStep();
-    /*
-    let new_x = this.position.x;
-    let new_y = this.position.y;
 
-    if (this.position.x < world.nest.position.x) {
-      new_x = this.position.x + 1;
-    } else if (this.position.x > world.nest.position.x) {
-      new_x = this.position.x - 1;
-    }
-
-    if (this.position.y < world.nest.position.y) {
-      new_y = this.position.y + 1;
-    } else if (this.position.y > world.nest.position.y) {
-      new_y = this.position.y - 1;
-    }
-
-    let prev_x = this.position.x;
-    let prev_y = this.position.y;
-
-    
-    new_x = constrain(new_x, 0, GRID_W - 1);
-    new_y = constrain(new_y, 0, GRID_H - 1);
-
-    // Check collisions before moving
-    let landed_on = world.grid[new_x][new_y];
-    */
     if (nextCell.type == "Nest") {
       this.state = SCAVENGER_MODE;
     }
@@ -230,18 +204,19 @@ class Ant extends Cell {
       nearby[i].y = constrain(nearby[i].y, 0, GRID_H - 1);
     }
 
-    // Constrain to only "Cell" or "Pheromones"
+    // Constrain options to only "Cell" or "Pheromones"
+    // Filter previous cell (prevPosition)
     const nearbyCells = [];
-    for (let i = 0; i < nearby.length; i++)
+    for (const position of nearby) {
+      const cell = world.grid[position.x][position.y];
       if (
-        ["Cell", "Pheromone"].includes(
-          world.grid[nearby[i].x][nearby[i].y].type
-        )
+        (cell.type == "Cell" || cell.type == "Pheromone") &&
+        cell.x != this.prevPosition.x &&
+        cell.y != this.prevPosition.y
       )
-        nearbyCells.push(world.grid[nearby[i].x][nearby[i].y]);
-      else if (world.grid[nearby[i].x][nearby[i].y].type == "Nest")
-        // Go back to nest as soon as it's found
-        return world.grid[nearby[i].x][nearby[i].y];
+        nearbyCells.push(cell);
+      else if (cell.type == "Nest") return cell;
+    }
 
     // Get the nearest cell with highest Step
     let max_step = random(nearbyCells);
