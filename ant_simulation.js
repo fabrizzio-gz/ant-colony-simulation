@@ -19,20 +19,35 @@ along with this software.  If not, see <https://www.gnu.org/licenses/>.
 
 // globals
 let world;
-let stop = false;
-let slow = false;
-let slowCounter = 0;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
+let slowButton, normalButton, fastButton;
 
 function setup() {
-  createCanvas(700, 700);
+  createCanvas(500, 500);
+  frameRate(10);
+
+  // Set up buttons to control simulation
+  const slowButton = createButton("slow");
+  const normalButton = createButton("normal");
+  const fastButton = createButton("fast");
+  const toggleButton = createButton("toggle");
+
+  slowButton.position(20, GRID_H * CELL_SIZE + 20);
+  normalButton.position(100, GRID_H * CELL_SIZE + 20);
+  fastButton.position(200, GRID_H * CELL_SIZE + 20);
+  toggleButton.position(100, GRID_H * CELL_SIZE + 50);
+
+  slowButton.mousePressed(slow);
+  normalButton.mousePressed(normal);
+  fastButton.mousePressed(fast);
+  toggleButton.mousePressed(toggle);
+
   colorMode(HSB);
   strokeWeight(1);
-  frameRate(10);
   background(48, 2, 98);
   stroke(0, 0, 80);
 
@@ -386,7 +401,6 @@ class Pheromone extends Cell {
 }
 
 function draw() {
-  if (stop) return;
   world.update();
   world.render();
 }
@@ -396,8 +410,19 @@ const ff = () => {
   for (let i = 0; i < 1000; i++) world.update();
 };
 
-// toogle simulation running on click
-function mousePressed() {
+const fast = () => {
+  frameRate(20);
+};
+
+const slow = () => {
+  frameRate(5);
+};
+
+const normal = () => {
+  frameRate(10);
+};
+
+const toggle = () => {
   if (isLooping()) noLoop();
   else loop();
-}
+};
