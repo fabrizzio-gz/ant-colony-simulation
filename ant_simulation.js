@@ -22,6 +22,7 @@ let world;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
+const ANTS = 20;
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
 let slowButton, normalButton, fastButton;
@@ -60,7 +61,7 @@ class World {
     initValues = {
       gridX: GRID_W,
       gridY: GRID_H,
-      ants: 20,
+      ants: ANTS,
       nestX: 25,
       nestY: 25,
       food: 18,
@@ -151,6 +152,11 @@ class Ant extends Cell {
   }
 
   update() {
+    /*console.log(
+      `Previous position x: ${this.prevPosition.x} y: ${this.prevPosition.y}`
+    );
+     console.log(`Current position x: ${this.position.x} y: ${this.position.y}`);*/
+
     world.grid[this.position.x][this.position.y].addStep();
     if (this.state === DELIVERY_MODE) {
       this.deliver_food();
@@ -160,21 +166,22 @@ class Ant extends Cell {
   }
 
   deliver_food() {
-    const prev_x = this.position.x;
-    const prev_y = this.position.y;
+    // debugger;
     const nextCell = this.getHighestStep();
 
-    if (nextCell.type == "Nest") {
-      this.state = SCAVENGER_MODE;
+    if (nextCell) {
+      if (nextCell.type == "Nest") {
+        this.state = SCAVENGER_MODE;
+      }
+
+      // Place pheromone before moving to next cell
+      // Save previous position
+      this.place_pheromone(this.position.x, this.position.y);
+      this.prevPosition.x = this.position.x;
+      this.prevPosition.y = this.position.y;
+      this.position.x = nextCell.position.x;
+      this.position.y = nextCell.position.y;
     }
-
-    this.position.x = nextCell.position.x;
-    this.position.y = nextCell.position.y;
-
-    // Place pheromone on the previous position only if the ant isn't still
-    // on that position.
-    if (!(prev_x === this.position.x && prev_y === this.position.y))
-      this.place_pheromone(prev_x, prev_y);
   }
 
   getHighestStep() {
@@ -211,8 +218,8 @@ class Ant extends Cell {
       const cell = world.grid[position.x][position.y];
       if (
         (cell.type == "Cell" || cell.type == "Pheromone") &&
-        cell.x != this.prevPosition.x &&
-        cell.y != this.prevPosition.y
+        cell.position.x != this.prevPosition.x &&
+        cell.position.y != this.prevPosition.y
       )
         nearbyCells.push(cell);
       else if (cell.type == "Nest") return cell;
@@ -232,9 +239,6 @@ class Ant extends Cell {
     let new_x = min_pheromone.position.x;
     let new_y = min_pheromone.position.y;
 
-    new_x = constrain(new_x, 0, GRID_W - 1);
-    new_y = constrain(new_y, 0, GRID_H - 1);
-
     // Check collisions before moving
     let landed_on = world.grid[new_x][new_y]; // [Cell]
 
@@ -251,6 +255,9 @@ class Ant extends Cell {
     // Ant can only carry food when scavenging
 
     // Change the ant position
+    // Don't save previous position when scavenging
+    //this.prevPosition.x = this.position.x;
+    // this.prevPosition.y = this.position.y;
     this.position.x = new_x;
     this.position.y = new_y;
   }
