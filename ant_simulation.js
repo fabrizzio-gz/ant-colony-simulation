@@ -23,8 +23,8 @@ let stop = false;
 let slow = false;
 let slowCounter = 0;
 const CELL_SIZE = 5;
-const GRID_W = 100;
-const GRID_H = 100;
+const GRID_W = 50;
+const GRID_H = 50;
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
 
@@ -32,6 +32,7 @@ function setup() {
   createCanvas(700, 700);
   colorMode(HSB);
   strokeWeight(1);
+  frameRate(10);
   background(48, 2, 98);
   stroke(0, 0, 80);
 
@@ -44,10 +45,10 @@ class World {
     initValues = {
       gridX: GRID_W,
       gridY: GRID_H,
-      ants: 50,
-      nestX: 50,
-      nestY: 50,
-      food: 40,
+      ants: 20,
+      nestX: 25,
+      nestY: 25,
+      food: 18,
     }
   ) {
     const { gridX, gridY, ants, nestX, nestY, food } = initValues;
