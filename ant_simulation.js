@@ -243,7 +243,6 @@ class Ant extends Cell {
         // Go back to nest as soon as it's found
         return world.grid[nearby[i].x][nearby[i].y];
 
-    // debugger;
     // Get the nearest cell with highest Step
     let max_step = random(nearbyCells);
     for (const cell of nearbyCells)
@@ -271,11 +270,7 @@ class Ant extends Cell {
       world.grid[new_x][new_y] = new Cell(new_x, new_y);
     } else if (landed_on.type == "Pheromone") {
       // Consume pheromone (test without consuming too)
-      world.grid[new_x][new_y] = new Cell(
-        new_x,
-        new_y,
-        world.grid[new_x][new_y].steps
-      );
+      world.grid[new_x][new_y] = new Cell(new_x, new_y, landed_on.steps);
     }
 
     // Ant can only carry food when scavenging
@@ -286,7 +281,11 @@ class Ant extends Cell {
   }
 
   place_pheromone(prev_x, prev_y) {
-    world.grid[prev_x][prev_y] = new Pheromone(prev_x, prev_y);
+    world.grid[prev_x][prev_y] = new Pheromone(
+      prev_x,
+      prev_y,
+      world.grid[prev_x][prev_y].steps
+    );
   }
 
   seek_pheromone() {
@@ -375,8 +374,8 @@ class Nest extends Cell {
 }
 
 class Pheromone extends Cell {
-  constructor(x, y) {
-    super(x, y);
+  constructor(x, y, steps) {
+    super(x, y, steps);
     this.type = "Pheromone";
     this.freshness = 50;
   }
