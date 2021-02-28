@@ -152,15 +152,11 @@ class Ant extends Cell {
   }
 
   update() {
-    /*console.log(
-      `Previous position x: ${this.prevPosition.x} y: ${this.prevPosition.y}`
-    );
-     console.log(`Current position x: ${this.position.x} y: ${this.position.y}`);*/
-
-    world.grid[this.position.x][this.position.y].addStep();
-    if (this.state === DELIVERY_MODE) {
-      this.deliver_food();
-    } else if (this.state === SCAVENGER_MODE) {
+    // Ants change `steps` property only when scavenging
+    // Used to avoid ants looping while delivering food
+    if (this.state === DELIVERY_MODE) this.deliver_food();
+    else if (this.state === SCAVENGER_MODE) {
+      world.grid[this.position.x][this.position.y].addStep();
       this.scavenge();
     }
   }
