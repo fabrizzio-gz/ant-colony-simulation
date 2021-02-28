@@ -396,12 +396,8 @@ const ff = () => {
   for (let i = 0; i < 1000; i++) world.update();
 };
 
-// stop simulation
-const s = () => {
-  stop = true;
-};
-
-// resume simulation
-const r = () => {
-  stop = false;
-};
+// toogle simulation running on click
+function mousePressed() {
+  if (isLooping()) noLoop();
+  else loop();
+}
