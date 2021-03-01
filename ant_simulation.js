@@ -131,18 +131,29 @@ class World {
 
 class Cell {
   static stepDuration = Math.round(Math.max(GRID_W, GRID_H) / 2);
+
   constructor(x, y, steps = 0) {
     this.position = createVector(x, y);
     this.size = CELL_SIZE;
     this.type = "Cell"; // a hack because I don't know how to do pattern
     // matching on types in js yet (is it possible?)
     this.steps = steps;
+    this.stepDuration = Cell.stepDuration;
   }
 
   addStep() {
+    // Reset decrease count
+    this.stepDuration = Cell.septDuration;
     this.steps++;
   }
-  update() {}
+  update() {
+    this.stepDuration--;
+    if (this.stepDuration < 0) this.decreaseSteps();
+  }
+
+  decreaseSteps() {
+    this.steps = Math.round(this.steps / 2);
+  }
 
   render() {
     fill(48, 2, Math.max(98 - this.steps, 20)); // Make darker with more steps
