@@ -130,6 +130,7 @@ class World {
 }
 
 class Cell {
+  static stepDuration = Math.round(Math.max(GRID_W, GRID_H) / 2);
   constructor(x, y, steps = 0) {
     this.position = createVector(x, y);
     this.size = CELL_SIZE;
@@ -341,9 +342,9 @@ class Ant extends Cell {
 
   render() {
     if (this.state === SCAVENGER_MODE) {
-      fill(0);
+      fill(100, 100, 70);
     } else {
-      fill(20, 100, 100);
+      fill(20, 80, 80);
     }
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
@@ -374,7 +375,7 @@ class Nest extends Cell {
   update() {}
 
   render() {
-    fill(90, 100, 100);
+    fill(100, 100, 100);
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
 }
