@@ -22,7 +22,7 @@ let world;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
-const ANTS = 20;
+const ANTS = 50;
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
 let slowButton, normalButton, fastButton;
@@ -165,19 +165,18 @@ class Ant extends Cell {
     // debugger;
     const nextCell = this.getHighestStep();
 
-    if (nextCell) {
-      if (nextCell.type == "Nest") {
-        this.state = SCAVENGER_MODE;
-      }
-
-      // Place pheromone before moving to next cell
-      // Save previous position
-      this.place_pheromone(this.position.x, this.position.y);
-      this.prevPosition.x = this.position.x;
-      this.prevPosition.y = this.position.y;
-      this.position.x = nextCell.position.x;
-      this.position.y = nextCell.position.y;
+    // if (!nextCell) debugger;
+    if (nextCell.type == "Nest") {
+      this.state = SCAVENGER_MODE;
     }
+
+    // Place pheromone before moving to next cell
+    // Save previous position
+    this.place_pheromone(this.position.x, this.position.y);
+    this.prevPosition.x = this.position.x;
+    this.prevPosition.y = this.position.y;
+    this.position.x = nextCell.position.x;
+    this.position.y = nextCell.position.y;
   }
 
   getHighestStep() {
@@ -214,12 +213,18 @@ class Ant extends Cell {
       const cell = world.grid[position.x][position.y];
       if (
         (cell.type == "Cell" || cell.type == "Pheromone") &&
-        cell.position.x != this.prevPosition.x &&
-        cell.position.y != this.prevPosition.y
+        !(
+          cell.position.x == this.prevPosition.x &&
+          cell.position.y == this.prevPosition.y
+        )
       )
         nearbyCells.push(cell);
       else if (cell.type == "Nest") return cell;
     }
+
+    // If the way in is the only way back
+    if (!nearbyCells)
+      nearbyCells.push(world.grid[this.prevPosition.x][this.prevPosition.y]);
 
     // Get the nearest cell with highest Step
     let max_step = random(nearbyCells);
