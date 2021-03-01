@@ -147,29 +147,34 @@ class Cell {
 }
 
 class Ant extends Cell {
+  static maxFuel = Math.max(GRID_W, GRID_H);
+
   constructor(x, y) {
     super(x, y);
     this.type = "Ant";
     this.state = SCAVENGER_MODE;
     this.prevPosition = createVector(-1, -1);
+    this.fuel = Ant.maxFuel;
   }
 
   update() {
     // Ants change `steps` property only when scavenging
     // Used to avoid ants looping while delivering food
-    if (this.state === DELIVERY_MODE) this.deliver_food();
-    else if (this.state === SCAVENGER_MODE) {
+    if (this.state === DELIVERY_MODE) {
+      this.fuel--;
+      this.deliver_food();
+    } else if (this.state === SCAVENGER_MODE) {
       world.grid[this.position.x][this.position.y].addStep();
       this.scavenge();
     }
   }
 
   deliver_food() {
-    // debugger;
     const nextCell = this.getHighestStep();
 
     // if (!nextCell) debugger;
     if (nextCell.type == "Nest") {
+      this.restoreFuel();
       this.state = SCAVENGER_MODE;
     }
 
@@ -180,6 +185,18 @@ class Ant extends Cell {
     this.prevPosition.y = this.position.y;
     this.position.x = nextCell.position.x;
     this.position.y = nextCell.position.y;
+    if (this.fuel < 0) this.failDelivery();
+  }
+
+  failDelivery() {
+    this.state = SCAVENGER_MODE;
+    this.fuel = Ant.maxFuel / 2;
+    // Make current position less appealing
+    world.grid[this.position.x][this.position.y].steps = 0;
+  }
+
+  restoreFuel() {
+    this.fuel = 100;
   }
 
   getHighestStep() {
