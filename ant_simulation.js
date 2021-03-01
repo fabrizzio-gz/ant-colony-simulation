@@ -35,18 +35,21 @@ function setup() {
   const slowButton = createButton("slow");
   const normalButton = createButton("normal");
   const fastButton = createButton("fast");
+  const resetButton = createButton("reset");
   const toggleButton = createButton("toggle");
   const ffButton = createButton("ff");
 
   slowButton.position(20, GRID_H * CELL_SIZE + 20);
   normalButton.position(100, GRID_H * CELL_SIZE + 20);
   fastButton.position(200, GRID_H * CELL_SIZE + 20);
+  resetButton.position(20, GRID_H * CELL_SIZE + 50);
   toggleButton.position(100, GRID_H * CELL_SIZE + 50);
   ffButton.position(200, GRID_H * CELL_SIZE + 50);
 
   slowButton.mousePressed(slow);
   normalButton.mousePressed(normal);
   fastButton.mousePressed(fast);
+  resetButton.mousePressed(reset);
   toggleButton.mousePressed(toggle);
   ffButton.mousePressed(ff);
 
@@ -427,4 +430,8 @@ const normal = () => {
 const toggle = () => {
   if (isLooping()) noLoop();
   else loop();
+};
+
+const reset = () => {
+  world = new World();
 };
