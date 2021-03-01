@@ -25,7 +25,6 @@ const GRID_H = 50;
 const ANTS = 50;
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
-let slowButton, normalButton, fastButton;
 
 function setup() {
   createCanvas(500, 500);
@@ -76,20 +75,58 @@ class World {
     const { gridX, gridY, ants, nestX, nestY, food } = initValues;
     this.gridX = gridX;
     this.gridY = gridY;
-    this.grid = this.initGrid(gridX, gridY);
+    this.grid = this.initGrid();
+    this.adjPos = this.getAdjPositions();
     this.nest = this.initNest(nestX, nestY);
     if (food) this.initFood(food, this.grid);
     this.ants = this.initAnts(ants);
   }
 
-  initGrid(gridX, gridY) {
+  initGrid() {
     const grid = [];
-    for (let x = 0; x < gridX; x++) {
+    for (let x = 0; x < this.gridX; x++) {
       grid.push([]); // add cols
-      for (let y = 0; y < gridY; y++) grid[x][y] = new Cell(x, y);
+      for (let y = 0; y < this.gridY; y++) grid[x][y] = new Cell(x, y);
     }
 
     return grid;
+  }
+
+  getAdjPositions() {
+    const adjPos = [];
+    for (let x = 0; x < this.gridX; x++) {
+      adjPos.push([]);
+      for (let y = 0; y < this.gridY; y++) {
+        const neighbours = this.getNeighbours(x, y);
+        adjPos[x][y] = [];
+        neighbours.forEach((position) => {
+          // Invalid cells will be `undefined` (falsy)
+          try {
+            if (this.grid[position.x][position.y]) adjPos[x][y].push(position);
+          } catch (error) {
+            // TypeError due to index out of grid (ok)
+            if (!(error instanceof TypeError)) throw error;
+          }
+        }, this);
+      }
+    }
+
+    return adjPos;
+  }
+
+  getNeighbours(x, y) {
+    return [
+      createVector(x - 1, y - 1),
+      createVector(x, y - 1),
+      createVector(x + 1, y - 1),
+
+      createVector(x - 1, y),
+      createVector(x + 1, y),
+
+      createVector(x - 1, y + 1),
+      createVector(x, y + 1),
+      createVector(x + 1, y + 1),
+    ];
   }
 
   initNest(nestX, nestY) {
@@ -146,13 +183,20 @@ class Cell {
     this.stepDuration = Cell.septDuration;
     this.steps++;
   }
+
+  decreaseSteps() {
+    this.steps = Math.round(this.steps / 2);
+  }
+
   update() {
     this.stepDuration--;
     if (this.stepDuration < 0) this.decreaseSteps();
   }
 
-  decreaseSteps() {
-    this.steps = Math.round(this.steps / 2);
+  // For debugging purposes
+  paintSpecial() {
+    fill(0);
+    square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
 
   render() {
