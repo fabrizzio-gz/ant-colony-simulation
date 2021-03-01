@@ -36,16 +36,19 @@ function setup() {
   const normalButton = createButton("normal");
   const fastButton = createButton("fast");
   const toggleButton = createButton("toggle");
+  const ffButton = createButton("ff");
 
   slowButton.position(20, GRID_H * CELL_SIZE + 20);
   normalButton.position(100, GRID_H * CELL_SIZE + 20);
   fastButton.position(200, GRID_H * CELL_SIZE + 20);
   toggleButton.position(100, GRID_H * CELL_SIZE + 50);
+  ffButton.position(200, GRID_H * CELL_SIZE + 50);
 
   slowButton.mousePressed(slow);
   normalButton.mousePressed(normal);
   fastButton.mousePressed(fast);
   toggleButton.mousePressed(toggle);
+  ffButton.mousePressed(ff);
 
   colorMode(HSB);
   strokeWeight(1);
