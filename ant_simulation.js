@@ -264,7 +264,8 @@ class Ant extends Cell {
 
     // Get the locations of nearby cells
     // Verify constraints later on.
-    let nearby = [
+    let nearby = world.adjPos[x][y];
+    /* [
       createVector(x - 1, y - 1),
       createVector(x, y - 1),
       createVector(x + 1, y - 1),
@@ -283,7 +284,7 @@ class Ant extends Cell {
     for (let i = 0; i < nearby.length; i++) {
       nearby[i].x = constrain(nearby[i].x, 0, GRID_W - 1);
       nearby[i].y = constrain(nearby[i].y, 0, GRID_H - 1);
-    }
+    }*/
 
     // Constrain options to only "Cell" or "Pheromones"
     // Filter previous cell (prevPosition)
@@ -355,7 +356,8 @@ class Ant extends Cell {
     let y = this.position.y;
 
     // Get the locations of nearby cells
-    let nearby = [
+    let nearby = world.adjPos[x][y];
+    /*[
       createVector(x - 1, y - 1),
       createVector(x, y - 1),
       createVector(x + 1, y - 1),
@@ -374,7 +376,7 @@ class Ant extends Cell {
     for (let i = 0; i < nearby.length; i++) {
       nearby[i].x = constrain(nearby[i].x, 0, GRID_W - 1);
       nearby[i].y = constrain(nearby[i].y, 0, GRID_H - 1);
-    }
+    }*/
 
     // Get the min nearby pheromone
     let freshness =
