@@ -266,9 +266,10 @@ class Ant extends Cell {
     // Make current position less appealing
     world.grid[this.position.x][this.position.y].steps = 0;
     // "Bomb surrounding possitions to avoid same path
-    world.adjPos[this.position.x][this.position.y].forEach(
-      (position) => (world.grid[position.x][position.y].steps = 0)
-    );
+    world.adjPos[this.position.x][this.position.y].forEach((position) => {
+      const cell = world.grid[position.x][position.y];
+      if (cell.type == "Pheromone") cell.steps = 0;
+    });
   }
 
   restoreFuel() {
