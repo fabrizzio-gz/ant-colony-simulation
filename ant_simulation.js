@@ -22,7 +22,7 @@ let world;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
-const ANTS = 10;
+const ANTS = 20;
 const FOOD = 10;
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
@@ -218,7 +218,7 @@ class Cell {
 }
 
 class Ant extends Cell {
-  static maxFuel = Math.max(GRID_W, GRID_H);
+  static maxFuel = Math.max(GRID_W, GRID_H) * 1.5;
 
   constructor(x, y) {
     super(x, y);
@@ -265,6 +265,10 @@ class Ant extends Cell {
     this.fuel = Ant.maxFuel / 2;
     // Make current position less appealing
     world.grid[this.position.x][this.position.y].steps = 0;
+    // "Bomb surrounding possitions to avoid same path
+    world.adjPos[this.position.x][this.position.y].forEach(
+      (position) => (world.grid[position.x][position.y].steps = 0)
+    );
   }
 
   restoreFuel() {
