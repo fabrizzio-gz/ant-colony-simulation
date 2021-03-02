@@ -180,7 +180,7 @@ class World {
 }
 
 class Cell {
-  static stepDuration = Math.round(Math.max(GRID_W, GRID_H) / 2);
+  static stepDuration = Math.round(Math.max(GRID_W, GRID_H) * 10);
 
   constructor(x, y, steps = 0) {
     this.position = createVector(x, y);
@@ -194,23 +194,24 @@ class Cell {
   addStepsRegion() {
     world.adjPos[this.position.x][this.position.y].forEach((position) => {
       const adjCell = world.grid[position.x][position.y];
-      adjCell.addStep();
+      if (adjCell.type != "Pheromone") adjCell.addStep();
     });
     this.addStep();
   }
 
-  addStep() {
+  addStep(n = 1) {
     // Reset decrease count
-    this.stepDuration = Cell.septDuration;
-    this.steps += 2;
+    this.stepDuration = Cell.stepDuration;
+    this.steps += n;
   }
 
   decreaseSteps() {
-    this.steps = Math.round(this.steps / 2);
+    this.steps--;
   }
 
   update() {
     this.stepDuration--;
+    if (Number.isNaN(this.stepDuration)) debugger;
     if (this.stepDuration < 0) this.decreaseSteps();
   }
 
@@ -221,7 +222,8 @@ class Cell {
   }
 
   render() {
-    fill(48, 2, Math.max(98 - this.steps, 20)); // Make darker with more steps
+    fill(48, 2, Math.max(98 - this.steps / 2, 20)); // Make darker with more steps
+    // fill(48, 2, 98);
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
 }
@@ -250,7 +252,7 @@ class Ant extends Cell {
     } else {
       this.randomWalk();
       // Add step to next cell
-      world.grid[this.position.x][this.position.y].addStep();
+      world.grid[this.position.x][this.position.y].addStep(2);
     }
   }
 
@@ -275,7 +277,7 @@ class Ant extends Cell {
 
   failDelivery() {
     this.state = RANDOM_WALK_MODE;
-    this.fuel = Ant.maxFuel / 2;
+    this.fuel = Ant.maxFuel;
     // Make current position less appealing
     world.grid[this.position.x][this.position.y].steps = 0;
     // "Bomb surrounding possitions to avoid same path
