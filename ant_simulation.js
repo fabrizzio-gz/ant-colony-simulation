@@ -452,10 +452,12 @@ class Nest extends Cell {
 }
 
 class Pheromone extends Cell {
+  static maxFreshness = Math.max(GRID_H, GRID_W) * 2;
+
   constructor(x, y, steps) {
     super(x, y, steps);
     this.type = "Pheromone";
-    this.freshness = 50;
+    this.freshness = Pheromone.maxFreshness;
   }
 
   update() {
