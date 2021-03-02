@@ -23,7 +23,7 @@ const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
 const ANTS = 10;
-const FOOD = 5;
+const FOOD = 10;
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
 
@@ -235,8 +235,9 @@ class Ant extends Cell {
       this.fuel--;
       this.deliver_food();
     } else if (this.state === SCAVENGER_MODE) {
-      world.grid[this.position.x][this.position.y].addStep();
       this.scavenge();
+      if (world.grid[this.position.x][this.position.y].type != "Pheromone")
+        world.grid[this.position.x][this.position.y].addStep();
     }
   }
 
