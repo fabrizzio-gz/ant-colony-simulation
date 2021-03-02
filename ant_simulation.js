@@ -22,8 +22,8 @@ let world;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
-const ANTS = 20;
-const FOOD = 10;
+const ANTS = 1;
+const FOOD = 100;
 const RANDOM_WALK_MODE = "Random";
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
@@ -39,6 +39,7 @@ function setup() {
   const resetButton = createButton("reset");
   const toggleButton = createButton("toggle");
   const ffButton = createButton("ff");
+  const stepButton = createButton("step");
 
   slowButton.position(20, GRID_H * CELL_SIZE + 20);
   normalButton.position(100, GRID_H * CELL_SIZE + 20);
@@ -46,6 +47,7 @@ function setup() {
   resetButton.position(20, GRID_H * CELL_SIZE + 50);
   toggleButton.position(100, GRID_H * CELL_SIZE + 50);
   ffButton.position(200, GRID_H * CELL_SIZE + 50);
+  stepButton.position(100, GRID_H * CELL_SIZE + 80);
 
   slowButton.mousePressed(slow);
   normalButton.mousePressed(normal);
@@ -53,6 +55,7 @@ function setup() {
   resetButton.mousePressed(reset);
   toggleButton.mousePressed(toggle);
   ffButton.mousePressed(ff);
+  stepButton.mousePressed(step);
 
   colorMode(HSB);
   strokeWeight(1);
@@ -235,7 +238,7 @@ class Ant extends Cell {
     super(x, y);
     this.type = "Ant";
     this.state = RANDOM_WALK_MODE;
-    this.prevPosition = createVector(-1, -1);
+    this.prevPositions = [];
     this.fuel = Ant.maxFuel;
   }
 
@@ -262,22 +265,64 @@ class Ant extends Cell {
     // if (!nextCell) debugger;
     if (nextCell.type == "Nest") {
       this.restoreFuel();
+      this.prevPositions = [];
       this.state = SCAVENGER_MODE;
     }
 
     // Place pheromone before moving to next cell
-    // Save previous position
+
     this.place_pheromone(this.position.x, this.position.y);
-    this.prevPosition.x = this.position.x;
-    this.prevPosition.y = this.position.y;
+    // Save previous position and delete oldest one
+    // if there are more than 3 positions saved
+    if (this.prevPositions.unshift(this.position) > 3) this.prevPositions.pop();
     this.position.x = nextCell.position.x;
     this.position.y = nextCell.position.y;
     if (this.fuel < 0) this.failDelivery();
   }
 
+  getHighestStep() {
+    let x = this.position.x;
+    let y = this.position.y;
+
+    // Get the locations of nearby cells
+    // Verify constraints later on.
+    let nearby = world.adjPos[x][y];
+
+    // Constrain options to only "Cell" or "Pheromones"
+    // Filter previous cell (prevPosition)
+    const nearbyCells = [];
+    for (const position of nearby) {
+      const cell = world.grid[position.x][position.y];
+      if (
+        (cell.type == "Cell" || cell.type == "Pheromone") &&
+        !this.prevPositions.some(
+          (prevPosition) =>
+            cell.position.x == prevPosition.x &&
+            cell.position.y == prevPosition.y
+        )
+      )
+        nearbyCells.push(cell);
+      else if (cell.type == "Nest") return cell;
+    }
+
+    // If the way in is the only way back
+    if (!nearbyCells)
+      nearbyCells.push(
+        world.grid[this.prevPositions[0].x][this.prevPositions[0].y]
+      );
+
+    // Get the nearest cell with highest Step
+    let max_step = random(nearbyCells);
+    for (const cell of nearbyCells)
+      if (cell.steps > max_step.steps) max_step = cell;
+
+    return max_step;
+  }
+
   failDelivery() {
     this.state = RANDOM_WALK_MODE;
-    this.fuel = Ant.maxFuel;
+    this.restoreFuel();
+    this.prevPositions = [];
     // Make current position less appealing
     world.grid[this.position.x][this.position.y].steps = 0;
     // "Bomb surrounding possitions to avoid same path
@@ -288,63 +333,7 @@ class Ant extends Cell {
   }
 
   restoreFuel() {
-    this.fuel = 100;
-  }
-
-  getHighestStep() {
-    let x = this.position.x;
-    let y = this.position.y;
-
-    // Get the locations of nearby cells
-    // Verify constraints later on.
-    let nearby = world.adjPos[x][y];
-    /* [
-      createVector(x - 1, y - 1),
-      createVector(x, y - 1),
-      createVector(x + 1, y - 1),
-
-      createVector(x - 1, y),
-      createVector(x + 1, y),
-
-      createVector(x - 1, y + 1),
-      createVector(x, y + 1),
-      createVector(x + 1, y + 1),
-    ];
-
-    // Constrain locations within the canvas
-    // subtract 1 because of inclusive `constrain`
-    // (we want from: inclusive, to: exclusive)
-    for (let i = 0; i < nearby.length; i++) {
-      nearby[i].x = constrain(nearby[i].x, 0, GRID_W - 1);
-      nearby[i].y = constrain(nearby[i].y, 0, GRID_H - 1);
-    }*/
-
-    // Constrain options to only "Cell" or "Pheromones"
-    // Filter previous cell (prevPosition)
-    const nearbyCells = [];
-    for (const position of nearby) {
-      const cell = world.grid[position.x][position.y];
-      if (
-        (cell.type == "Cell" || cell.type == "Pheromone") &&
-        !(
-          cell.position.x == this.prevPosition.x &&
-          cell.position.y == this.prevPosition.y
-        )
-      )
-        nearbyCells.push(cell);
-      else if (cell.type == "Nest") return cell;
-    }
-
-    // If the way in is the only way back
-    if (!nearbyCells)
-      nearbyCells.push(world.grid[this.prevPosition.x][this.prevPosition.y]);
-
-    // Get the nearest cell with highest Step
-    let max_step = random(nearbyCells);
-    for (const cell of nearbyCells)
-      if (cell.steps > max_step.steps) max_step = cell;
-
-    return max_step;
+    this.fuel = Ant.maxFuel;
   }
 
   scavenge() {
@@ -534,4 +523,9 @@ const toggle = () => {
 
 const reset = () => {
   world = new World();
+};
+
+const step = () => {
+  if (isLooping()) noLoop();
+  draw();
 };
