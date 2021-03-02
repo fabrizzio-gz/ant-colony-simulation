@@ -191,10 +191,18 @@ class Cell {
     this.stepDuration = Cell.stepDuration;
   }
 
+  addStepsRegion() {
+    world.adjPos[this.position.x][this.position.y].forEach((position) => {
+      const adjCell = world.grid[position.x][position.y];
+      adjCell.addStep();
+    });
+    this.addStep();
+  }
+
   addStep() {
     // Reset decrease count
     this.stepDuration = Cell.septDuration;
-    this.steps++;
+    this.steps += 2;
   }
 
   decreaseSteps() {
@@ -238,7 +246,7 @@ class Ant extends Cell {
     } else if (this.state === SCAVENGER_MODE) {
       this.scavenge();
       if (world.grid[this.position.x][this.position.y].type != "Pheromone")
-        world.grid[this.position.x][this.position.y].addStep();
+        world.grid[this.position.x][this.position.y].addStepsRegion();
     } else {
       this.randomWalk();
       // Add step to next cell
