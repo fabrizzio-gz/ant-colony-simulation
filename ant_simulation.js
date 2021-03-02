@@ -24,6 +24,7 @@ const GRID_W = 50;
 const GRID_H = 50;
 const ANTS = 20;
 const FOOD = 10;
+const RANDOM_WALK_MODE = "Random";
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
 
@@ -223,7 +224,7 @@ class Ant extends Cell {
   constructor(x, y) {
     super(x, y);
     this.type = "Ant";
-    this.state = SCAVENGER_MODE;
+    this.state = RANDOM_WALK_MODE;
     this.prevPosition = createVector(-1, -1);
     this.fuel = Ant.maxFuel;
   }
@@ -238,6 +239,10 @@ class Ant extends Cell {
       this.scavenge();
       if (world.grid[this.position.x][this.position.y].type != "Pheromone")
         world.grid[this.position.x][this.position.y].addStep();
+    } else {
+      this.randomWalk();
+      // Add step to next cell
+      world.grid[this.position.x][this.position.y].addStep();
     }
   }
 
@@ -261,7 +266,7 @@ class Ant extends Cell {
   }
 
   failDelivery() {
-    this.state = SCAVENGER_MODE;
+    this.state = RANDOM_WALK_MODE;
     this.fuel = Ant.maxFuel / 2;
     // Make current position less appealing
     world.grid[this.position.x][this.position.y].steps = 0;
@@ -411,8 +416,19 @@ class Ant extends Cell {
     return min_pheromone;
   }
 
+  randomWalk() {
+    const nextPos = random(world.adjPos[this.position.x][this.position.y]);
+    this.position.x = nextPos.x;
+    this.position.y = nextPos.y;
+
+    const nextCell = world.grid[nextPos.x][nextPos.y];
+    if (nextCell.type == "Pheromone" || nextCell.type == "Nest")
+      this.state = SCAVENGER_MODE;
+    else if (nextCell.type == "Food") this.state = DELIVERY_MODE;
+  }
+
   render() {
-    if (this.state === SCAVENGER_MODE) {
+    if (this.state === SCAVENGER_MODE || this.state == RANDOM_WALK_MODE) {
       fill(100, 100, 70);
     } else {
       fill(20, 80, 80);
