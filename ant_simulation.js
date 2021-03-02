@@ -17,12 +17,13 @@ You should have received a copy of the GNU Affero General Public License
 along with this software.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// globals
+// globals and settings
 let world;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
 const ANTS = 50;
+const FOOD = 20;
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
 
@@ -69,7 +70,7 @@ class World {
       ants: ANTS,
       nestX: 25,
       nestY: 25,
-      food: 18,
+      food: FOOD,
     }
   ) {
     const { gridX, gridY, ants, nestX, nestY, food } = initValues;
@@ -145,9 +146,20 @@ class World {
   }
 
   initFood(food) {
+    /*
     for (let x = this.gridX - 1; x >= this.gridX - food; x--)
       for (let y = this.gridY - 1; y >= this.gridY - food; y--)
         this.grid[x][y] = new Food(x, y);
+    */
+    // Create food at random positions
+    while (food--) {
+      const x = Math.floor(Math.random() * this.gridX);
+      const y = Math.floor(Math.random() * this.gridY);
+      if (!(x == this.nest.position.x && y == this.nest.position.y))
+        this.grid[x][y] = new Food(x, y);
+      // Didn't add food this round, increase food
+      else food++;
+    }
   }
 
   update() {
@@ -326,7 +338,7 @@ class Ant extends Cell {
     if (landed_on.type == "Food") {
       this.state = DELIVERY_MODE;
 
-      // Remove food cell
+      // remove food cell
       world.grid[new_x][new_y] = new Cell(new_x, new_y);
     } else if (landed_on.type == "Pheromone") {
       // Consume pheromone (test without consuming too)
