@@ -22,8 +22,8 @@ let world;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
-const ANTS = 50;
-const FOOD = 20;
+const ANTS = 10;
+const FOOD = 5;
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
 
@@ -335,15 +335,10 @@ class Ant extends Cell {
     // Check collisions before moving
     let landed_on = world.grid[new_x][new_y]; // [Cell]
 
-    if (landed_on.type == "Food") {
-      this.state = DELIVERY_MODE;
-
-      // remove food cell
-      world.grid[new_x][new_y] = new Cell(new_x, new_y);
-    } else if (landed_on.type == "Pheromone") {
+    if (landed_on.type == "Food") this.state = DELIVERY_MODE;
+    else if (landed_on.type == "Pheromone")
       // Consume pheromone (test without consuming too)
       world.grid[new_x][new_y] = new Cell(new_x, new_y, landed_on.steps);
-    }
 
     // Ant can only carry food when scavenging
 
@@ -356,11 +351,12 @@ class Ant extends Cell {
   }
 
   place_pheromone(prev_x, prev_y) {
-    world.grid[prev_x][prev_y] = new Pheromone(
-      prev_x,
-      prev_y,
-      world.grid[prev_x][prev_y].steps
-    );
+    if (world.grid[prev_x][prev_y].type != "Food")
+      world.grid[prev_x][prev_y] = new Pheromone(
+        prev_x,
+        prev_y,
+        world.grid[prev_x][prev_y].steps
+      );
   }
 
   seek_pheromone() {
