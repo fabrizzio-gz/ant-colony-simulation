@@ -97,8 +97,10 @@ class World {
     this.nest = this.initNest(nestX, nestY);
     this.adjPos = this.getAdjPositions();
     this.addObstacles(obstacleCount);
-    this.adjPos = this.getAdjPositions();
     if (food) this.initFood(food, this.grid);
+    // Needs to calculate adj positions again
+    // after adding obstacles
+    this.adjPos = this.getAdjPositions();
     this.ants = this.initAnts(ants);
   }
 
