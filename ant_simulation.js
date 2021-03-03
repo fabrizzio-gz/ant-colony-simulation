@@ -2,6 +2,8 @@
 This is an attempt to simulate ant colony optimization using p5js.
 Copyright (C) 2021 must-compute
 <admin@must-compute.com>
+Fabrizzio G. 
+<onestepcode.web@gmail.com>
 
 This softwareis free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
