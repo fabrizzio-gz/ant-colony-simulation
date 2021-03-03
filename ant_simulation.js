@@ -307,12 +307,16 @@ class Ant extends Cell {
     this.state = RANDOM_WALK_MODE;
     this.prevPositions = [];
     this.fuel = Ant.maxFuel;
+    this.nestProximity = Ant.maxFuel;
     this.penalty = 0;
   }
 
   update() {
     // Ants change `steps` property only when scavenging
     // Used to avoid ants looping while delivering food
+    if (world.grid[this.position.x][this.position.y].type == "Nest")
+      this.restoreNestProximity();
+    this.nestProximity = Math.max(--this.nestProximity, 0);
     if (this.state === DELIVERY_MODE) {
       this.fuel--;
       this.deliver_food();
@@ -323,7 +327,9 @@ class Ant extends Cell {
     } else {
       this.randomWalk();
       // Add step to next cell
-      if (this.penalty == 0)
+      // If ant has been away from nest too long,
+      // it won't add steps
+      if (this.penalty == 0 && this.nestProximity)
         world.grid[this.position.x][this.position.y].addStep(2);
     }
   }
@@ -423,6 +429,10 @@ class Ant extends Cell {
     this.fuel = Ant.maxFuel;
   }
 
+  restoreNestProximity(val = Ant.maxFuel) {
+    this.nestProximity = val;
+  }
+
   setPenalty() {
     this.penalty = Math.round(Ant.maxFuel / 2);
   }
@@ -436,8 +446,10 @@ class Ant extends Cell {
     // Check collisions before moving
     let landed_on = world.grid[new_x][new_y]; // [Cell]
 
-    if (landed_on.type == "Food") this.state = DELIVERY_MODE;
-    else if (landed_on.type == "Pheromone")
+    if (landed_on.type == "Food") {
+      this.state = DELIVERY_MODE;
+      this.restoreNestProximity(Math.round(Ant.maxFuel / 2));
+    } else if (landed_on.type == "Pheromone")
       // Consume pheromone (test without consuming too)
       world.grid[new_x][new_y] = new Cell(new_x, new_y, landed_on.steps);
 
