@@ -2,10 +2,13 @@
 
 A simulation of an ant colony with ants scavenging for food sources.
 
+Forked from [must-compute](https://sr.ht/~must-compute/).
+
 ## Running the simulation
 
-Open `index.html` with your preferred browser.
+Open `main.html` with your preferred browser.
 
-Implemented using [p5.js](https://p5js.org/).
+## Dependencies
 
-Forked from [must-compute](https://sr.ht/~must-compute/).
+- [p5.js](https://p5js.org/).
+
