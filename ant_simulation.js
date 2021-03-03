@@ -307,6 +307,7 @@ class Ant extends Cell {
     this.state = RANDOM_WALK_MODE;
     this.prevPositions = [];
     this.fuel = Ant.maxFuel;
+    this.penalty = 0;
   }
 
   update() {
@@ -322,7 +323,8 @@ class Ant extends Cell {
     } else {
       this.randomWalk();
       // Add step to next cell
-      world.grid[this.position.x][this.position.y].addStep(2);
+      if (this.penalty == 0)
+        world.grid[this.position.x][this.position.y].addStep(2);
     }
   }
 
@@ -403,6 +405,7 @@ class Ant extends Cell {
 
   failDelivery() {
     this.state = RANDOM_WALK_MODE;
+    this.setPenalty();
     this.restoreFuel();
     this.prevPositions = [];
     // Make current position less appealing
@@ -416,6 +419,10 @@ class Ant extends Cell {
 
   restoreFuel() {
     this.fuel = Ant.maxFuel;
+  }
+
+  setPenalty() {
+    this.penalty = Math.round(Ant.maxFuel / 2);
   }
 
   scavenge() {
@@ -481,11 +488,13 @@ class Ant extends Cell {
     const nextPos = random(world.adjPos[this.position.x][this.position.y]);
     this.position.x = nextPos.x;
     this.position.y = nextPos.y;
-
-    const nextCell = world.grid[nextPos.x][nextPos.y];
-    if (nextCell.type == "Pheromone" || nextCell.type == "Nest")
-      this.state = SCAVENGER_MODE;
-    else if (nextCell.type == "Food") this.state = DELIVERY_MODE;
+    this.penalty = Math.max(this.penalty - 1, 0);
+    if (this.penalty == 0) {
+      const nextCell = world.grid[nextPos.x][nextPos.y];
+      if (nextCell.type == "Pheromone" || nextCell.type == "Nest")
+        this.state = SCAVENGER_MODE;
+      else if (nextCell.type == "Food") this.state = DELIVERY_MODE;
+    }
   }
 
   render() {
