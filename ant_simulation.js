@@ -22,9 +22,11 @@ let world;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
-const ANTS = 10;
-const FOOD = 20;
+const ANTS = 20;
+const FOOD = 10;
 const ANT_MEM = 5;
+const OBSTACLE_COUNT = 10;
+const OBSTACLE_SIZE = 5;
 const PHEROMONE_CELLS_LIMIT = 5;
 const RANDOM_WALK_MODE = "Random";
 const DELIVERY_MODE = "Delivery";
@@ -73,18 +75,29 @@ class World {
     initValues = {
       gridX: GRID_W,
       gridY: GRID_H,
+      obstacleCount: OBSTACLE_COUNT,
       ants: ANTS,
       nestX: 25,
       nestY: 25,
       food: FOOD,
     }
   ) {
-    const { gridX, gridY, ants, nestX, nestY, food } = initValues;
+    const {
+      gridX,
+      gridY,
+      obstacleCount,
+      ants,
+      nestX,
+      nestY,
+      food,
+    } = initValues;
     this.gridX = gridX;
     this.gridY = gridY;
     this.grid = this.initGrid();
-    this.adjPos = this.getAdjPositions();
     this.nest = this.initNest(nestX, nestY);
+    this.adjPos = this.getAdjPositions();
+    this.addObstacles(obstacleCount);
+    this.adjPos = this.getAdjPositions();
     if (food) this.initFood(food, this.grid);
     this.ants = this.initAnts(ants);
   }
@@ -99,6 +112,27 @@ class World {
     return grid;
   }
 
+  addObstacles(quantity) {
+    while (quantity--) {
+      let x = Math.floor(Math.random() * this.gridX);
+      let y = Math.floor(Math.random() * this.gridY);
+      let expansions = OBSTACLE_SIZE;
+      do {
+        this.grid[x][y].createObstacle(this);
+        this.adjPos[x][y].forEach((position) => {
+          if (this.grid[position.x][position.y].type != "Nest")
+            this.grid[position.x][position.y] = new Obstacle(
+              position.x,
+              position.y
+            );
+        }, this);
+        let nextPos = random(this.adjPos[x][y]);
+        x = nextPos.x;
+        y = nextPos.y;
+      } while (expansions--);
+    }
+  }
+
   getAdjPositions() {
     const adjPos = [];
     for (let x = 0; x < this.gridX; x++) {
@@ -109,7 +143,8 @@ class World {
         neighbours.forEach((position) => {
           // Invalid cells will be `undefined` (falsy)
           try {
-            if (this.grid[position.x][position.y]) adjPos[x][y].push(position);
+            const cell = this.grid[position.x][position.y];
+            if (cell.type != "Obstacle") adjPos[x][y].push(position);
           } catch (error) {
             // TypeError due to index out of grid (ok)
             if (!(error instanceof TypeError)) throw error;
@@ -214,6 +249,19 @@ class Cell {
     this.steps--;
   }
 
+  createObstacle(world) {
+    if (
+      !(
+        this.position.x == world.nest.position.x &&
+        this.position.y == world.nest.position.y
+      )
+    )
+      world.grid[this.position.x][this.position.y] = new Obstacle(
+        this.position.x,
+        this.position.y
+      );
+  }
+
   update() {
     this.stepDuration--;
     if (Number.isNaN(this.stepDuration)) debugger;
@@ -228,6 +276,21 @@ class Cell {
 
   render() {
     fill(48, 2, Math.max(98 - this.steps / 2, 20)); // Make darker with more steps
+    // fill(48, 2, 98);
+    square(this.position.x * this.size, this.position.y * this.size, this.size);
+  }
+}
+
+class Obstacle extends Cell {
+  constructor(x, y) {
+    super(x, y);
+    this.type = "Obstacle";
+  }
+
+  update() {}
+
+  render() {
+    fill(240, 100, 100); // Make darker with more steps
     // fill(48, 2, 98);
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
