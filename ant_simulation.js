@@ -25,6 +25,7 @@ const GRID_H = 50;
 const ANTS = 10;
 const FOOD = 20;
 const ANT_MEM = 5;
+const PHEROMONE_CELLS_LIMIT = 5;
 const RANDOM_WALK_MODE = "Random";
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
@@ -261,7 +262,6 @@ class Ant extends Cell {
   }
 
   deliver_food() {
-    debugger;
     const nextCell = this.getHighestStep();
 
     // if (!nextCell) debugger;
@@ -283,7 +283,7 @@ class Ant extends Cell {
       this.prevPositions.pop();
     this.position.x = nextCell.position.x;
     this.position.y = nextCell.position.y;
-    if (this.fuel < 0) this.failDelivery();
+    if (this.fuel < 0 || this.pheromoneSurrounded()) this.failDelivery();
   }
 
   getHighestStep() {
@@ -323,6 +323,17 @@ class Ant extends Cell {
       if (cell.steps > max_step.steps) max_step = cell;
 
     return max_step;
+  }
+
+  pheromoneSurrounded() {
+    const adjPos = world.adjPos[this.position.x][this.position.y];
+    let pheromoneCellsCount = 0;
+    adjPos.forEach((position) => {
+      const cell = world.grid[position.x][position.y];
+      if (cell.type == "Pheromone") pheromoneCellsCount++;
+    });
+
+    return pheromoneCellsCount >= PHEROMONE_CELLS_LIMIT;
   }
 
   failDelivery() {
