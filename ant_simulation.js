@@ -22,8 +22,9 @@ let world;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
-const ANTS = 1;
-const FOOD = 100;
+const ANTS = 10;
+const FOOD = 20;
+const ANT_MEM = 5;
 const RANDOM_WALK_MODE = "Random";
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
@@ -260,6 +261,7 @@ class Ant extends Cell {
   }
 
   deliver_food() {
+    debugger;
     const nextCell = this.getHighestStep();
 
     // if (!nextCell) debugger;
@@ -270,11 +272,15 @@ class Ant extends Cell {
     }
 
     // Place pheromone before moving to next cell
-
     this.place_pheromone(this.position.x, this.position.y);
     // Save previous position and delete oldest one
     // if there are more than 3 positions saved
-    if (this.prevPositions.unshift(this.position) > 3) this.prevPositions.pop();
+    if (
+      this.prevPositions.unshift(
+        createVector(this.position.x, this.position.y)
+      ) > ANT_MEM
+    )
+      this.prevPositions.pop();
     this.position.x = nextCell.position.x;
     this.position.y = nextCell.position.y;
     if (this.fuel < 0) this.failDelivery();
@@ -375,26 +381,6 @@ class Ant extends Cell {
 
     // Get the locations of nearby cells
     let nearby = world.adjPos[x][y];
-    /*[
-      createVector(x - 1, y - 1),
-      createVector(x, y - 1),
-      createVector(x + 1, y - 1),
-
-      createVector(x - 1, y),
-      createVector(x + 1, y),
-
-      createVector(x - 1, y + 1),
-      createVector(x, y + 1),
-      createVector(x + 1, y + 1),
-    ];
-
-    // Constrain locations within the canvas
-    // subtract 1 because of inclusive `constrain`
-    // (we want from: inclusive, to: exclusive)
-    for (let i = 0; i < nearby.length; i++) {
-      nearby[i].x = constrain(nearby[i].x, 0, GRID_W - 1);
-      nearby[i].y = constrain(nearby[i].y, 0, GRID_H - 1);
-    }*/
 
     // Get the min nearby pheromone
     let freshness =
