@@ -413,7 +413,9 @@ class Ant extends Cell {
     // "Bomb surrounding possitions to avoid same path
     world.adjPos[this.position.x][this.position.y].forEach((position) => {
       const cell = world.grid[position.x][position.y];
-      if (cell.type == "Pheromone") cell.steps = 0;
+      // Destroy surrounding pheromones
+      if (cell.type == "Pheromone")
+        world.grid[position.x][position.y] = new Cell(position.x, position.y);
     });
   }
 
