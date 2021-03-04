@@ -251,6 +251,9 @@ class Cell {
 
   decreaseSteps() {
     this.steps--;
+    // Decrease should stop at 0, but
+    // performance is better when changed to that
+    // this.steps = Math.max(--this.steps, 0);
   }
 
   createObstacle(world) {
