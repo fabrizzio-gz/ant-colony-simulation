@@ -351,7 +351,6 @@ class Ant extends Cell {
   deliver_food() {
     const nextCell = this.getHighestStep();
 
-    // if (!nextCell) debugger;
     if (nextCell.type == "Nest") {
       this.restoreFuel();
       this.prevPositions = [];
@@ -400,7 +399,7 @@ class Ant extends Cell {
     }
 
     // If the way in is the only way back
-    if (!nearbyCells)
+    if (nearbyCells.length == 0)
       nearbyCells.push(
         world.grid[this.prevPositions[0].x][this.prevPositions[0].y]
       );
@@ -410,6 +409,7 @@ class Ant extends Cell {
     for (const cell of nearbyCells)
       if (cell.steps > max_step.steps) max_step = cell;
 
+    if (!max_step) debugger;
     return max_step;
   }
 
