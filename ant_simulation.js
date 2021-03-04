@@ -20,7 +20,7 @@ let world;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
-const ANTS = 100;
+const ANTS = 1;
 const FOOD = 0;
 const ANT_MEM = 0;
 const OBSTACLE_COUNT = 0;
@@ -339,12 +339,14 @@ class Ant extends Cell {
   update() {
     if (world.grid[this.position.x][this.position.y].type == "Nest")
       this.stepsFromNest = 0;
-    this.stepsFromNest++;
-    let newPos;
 
-    if (this.state == RANDOM_WALK_MODE) {
-      newPos = this.randomWalk();
-    }
+    this.stepsFromNest++;
+
+    let newPos;
+    if (this.state == RANDOM_WALK_MODE) newPos = this.randomWalk();
+    else if (this.state == DELIVERY_MODE)
+      newPos = this.getMinNestDistanceCell();
+
     if (this.isDiagonal(newPos)) this.stepsFromNest++;
 
     this.updatePosition(newPos);
@@ -379,6 +381,23 @@ class Ant extends Cell {
     return !(this.position.x == newPos.x || this.position.y == newPos.y);
   }
 
+  return() {
+    this.state = DELIVERY_MODE;
+  }
+
+  getMinNestDistanceCell() {
+    const nextPos = world.adjPos[this.position.x][this.position.y].reduce(
+      (minPos, nextPos) => {
+        if (
+          world.grid[nextPos.x][nextPos.y].nestDistance <
+          world.grid[minPos.x][minPos.y].nestDistance
+        )
+          return nextPos;
+        return minPos;
+      }
+    );
+    return nextPos;
+  }
   /*
   deliver_food() {
     const nextCell = this.getHighestStep();
