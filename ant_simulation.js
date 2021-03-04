@@ -266,6 +266,15 @@ class Cell {
       );
   }
 
+  setStepsToClosestMin() {
+    let minSteps = this.steps;
+    world.adjPos[this.position.x][this.position.y].forEach((position) => {
+      const adjCellSteps = world.grid[position.x][position.y].steps;
+      if (adjCellSteps < minSteps) minSteps = adjCellSteps;
+    });
+    this.steps = minSteps;
+  }
+
   update() {
     this.stepDuration--;
     if (Number.isNaN(this.stepDuration)) debugger;
@@ -358,7 +367,8 @@ class Ant extends Cell {
       this.prevPositions.pop();
     this.position.x = nextCell.position.x;
     this.position.y = nextCell.position.y;
-    if (this.fuel < 0 || this.pheromoneSurrounded()) this.failDelivery();
+    if (this.pheromoneSurrounded()) this.normalizeSteps();
+    else if (this.fuel < 0) this.failDelivery();
   }
 
   getHighestStep() {
@@ -409,6 +419,13 @@ class Ant extends Cell {
     });
 
     return pheromoneCellsCount >= PHEROMONE_CELLS_LIMIT;
+  }
+
+  normalizeSteps() {
+    world.adjPos[this.position.x][this.position.y].forEach((position) => {
+      world.grid[position.x][position.y].setStepsToClosestMin();
+    });
+    world.grid[this.position.x][this.position.y].setStepsToClosestMin();
   }
 
   failDelivery() {
