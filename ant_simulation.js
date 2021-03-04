@@ -20,12 +20,12 @@ let world;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
-const ANTS = 20;
-const FOOD = 10;
-const ANT_MEM = 5;
-const OBSTACLE_COUNT = 10;
+const ANTS = 100;
+const FOOD = 0;
+const ANT_MEM = 0;
+const OBSTACLE_COUNT = 0;
 const OBSTACLE_SIZE = 5;
-const PHEROMONE_CELLS_LIMIT = 5;
+const PHEROMONE_CELLS_LIMIT = 0;
 const RANDOM_WALK_MODE = "Random";
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
@@ -225,12 +225,33 @@ class Cell {
   constructor(x, y, steps = 0) {
     this.position = createVector(x, y);
     this.size = CELL_SIZE;
-    this.type = "Cell"; // a hack because I don't know how to do pattern
-    // matching on types in js yet (is it possible?)
-    this.steps = steps;
-    this.stepDuration = Cell.stepDuration;
+    this.type = "Cell";
+    this.nestDistance = Number.MAX_SAFE_INTEGER;
+    // this.foodProximity = 0 TODO
+    // this.stepDuration = Cell.stepDuration;
   }
 
+  setCellsNestDistance(stepsFromNest) {
+    this.setNestDistance(stepsFromNest);
+    world.adjPos[this.position.x][this.position.y].forEach((position) => {
+      // Increase cells in same x or y index by +1
+      if (position.x == this.position.x || position.y == this.position.y)
+        world.grid[this.position.x][this.position.y].setNestDistance(
+          stepsFromNest + 1
+        );
+      // Diagonal values, increase by +2
+      else
+        world.grid[this.position.x][this.position.y].setNestDistance(
+          stepsFromNest + 2
+        );
+    }, this);
+  }
+
+  setNestDistance(stepsFromNest) {
+    if (this.nestDistance > stepsFromNest) this.nestDistance = stepsFromNest;
+  }
+
+  /*
   addStepsRegion() {
     world.adjPos[this.position.x][this.position.y].forEach((position) => {
       const adjCell = world.grid[position.x][position.y];
@@ -251,7 +272,7 @@ class Cell {
     // performance is better when changed to that
     // this.steps = Math.max(--this.steps, 0);
   }
-
+ */
   createObstacle(world) {
     if (
       !(
@@ -264,7 +285,7 @@ class Cell {
         this.position.y
       );
   }
-
+  /*
   setStepsToClosestMin() {
     let minSteps = this.steps;
     world.adjPos[this.position.x][this.position.y].forEach((position) => {
@@ -272,13 +293,9 @@ class Cell {
       if (adjCellSteps < minSteps) minSteps = adjCellSteps;
     });
     this.steps = minSteps;
-  }
+  }*/
 
-  update() {
-    this.stepDuration--;
-    if (Number.isNaN(this.stepDuration)) debugger;
-    if (this.stepDuration < 0) this.decreaseSteps();
-  }
+  update() {}
 
   // For debugging purposes
   paintSpecial() {
@@ -287,8 +304,7 @@ class Cell {
   }
 
   render() {
-    fill(48, 2, Math.max(98 - this.steps / 2, 20)); // Make darker with more steps
-    // fill(48, 2, 98);
+    fill(48, 2, Math.min(this.nestDistance, 255));
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
 }
@@ -302,8 +318,7 @@ class Obstacle extends Cell {
   update() {}
 
   render() {
-    fill(240, 100, 100); // Make darker with more steps
-    // fill(48, 2, 98);
+    fill(240, 100, 100);
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
 }
@@ -315,13 +330,28 @@ class Ant extends Cell {
     super(x, y);
     this.type = "Ant";
     this.state = RANDOM_WALK_MODE;
-    this.prevPositions = [];
-    this.fuel = Ant.maxFuel;
-    this.nestProximity = Ant.maxFuel;
-    this.penalty = 0;
+    // this.prevPositions = [];
+    // this.fuel = Ant.maxFuel;
+    this.stepsFromNest = 0;
+    // this.penalty = 0;
   }
 
   update() {
+    if (world.grid[this.position.x][this.position.y].type == "Nest")
+      this.stepsFromNest = 0;
+    this.stepsFromNest++;
+    let newPos;
+
+    if (this.state == RANDOM_WALK_MODE) {
+      newPos = this.randomWalk();
+    }
+
+    this.updatePosition(newPos);
+
+    world.grid[newPos.x][newPos.y].setCellsNestDistance(this.stepsFromNest);
+    // TODO update prevPositions
+
+    /*
     // Ants change `steps` property only when scavenging
     // Used to avoid ants looping while delivering food
     if (world.grid[this.position.x][this.position.y].type == "Nest")
@@ -341,9 +371,10 @@ class Ant extends Cell {
       // it won't add steps
       if (this.penalty == 0 && this.nestProximity)
         world.grid[this.position.x][this.position.y].addStep(2);
-    }
-  }
+    }  */
+  } /*
 
+  
   deliver_food() {
     const nextCell = this.getHighestStep();
 
@@ -514,19 +545,22 @@ class Ant extends Cell {
       }
     }
     return min_pheromone;
-  }
+  } */
 
   randomWalk() {
     const nextPos = random(world.adjPos[this.position.x][this.position.y]);
-    this.position.x = nextPos.x;
-    this.position.y = nextPos.y;
-    this.penalty = Math.max(this.penalty - 1, 0);
-    if (this.penalty == 0) {
-      const nextCell = world.grid[nextPos.x][nextPos.y];
+
+    /*  const nextCell = world.grid[nextPos.x][nextPos.y];
       if (nextCell.type == "Pheromone" || nextCell.type == "Nest")
         this.state = SCAVENGER_MODE;
       else if (nextCell.type == "Food") this.state = DELIVERY_MODE;
-    }
+    */
+    return nextPos;
+  }
+
+  updatePosition(newPos) {
+    this.position.x = newPos.x;
+    this.position.y = newPos.y;
   }
 
   render() {
@@ -558,7 +592,11 @@ class Nest extends Cell {
   constructor(x, y) {
     super(x, y);
     this.type = "Nest";
-    this.steps = 1000; // To make ants return to it
+    this.nestDistance = 0;
+  }
+
+  setNestDistance(stepsFromNest) {
+    // Do nothing
   }
 
   update() {}
