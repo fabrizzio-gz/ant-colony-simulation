@@ -21,7 +21,7 @@ const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
 const ANTS = 1;
-const FOOD = 100;
+const FOOD = 0;
 const ANT_MEM = 0;
 const OBSTACLE_COUNT = 0;
 const OBSTACLE_SIZE = 5;
@@ -211,10 +211,9 @@ class World {
   printSteps(toPrint = "nest") {
     if (toPrint == "nest") {
       console.log("Distance from nest");
-
-      for (let x = 0; x < this.gridX; x++) {
+      for (let y = 0; y < this.gridY; y++) {
         let distance = "";
-        for (let y = 0; y < this.gridY; y++)
+        for (let x = 0; x < this.gridX; x++)
           distance +=
             this.grid[x][y].nestDistance == Number.MAX_SAFE_INTEGER
               ? "-"
@@ -259,21 +258,15 @@ class Cell {
     world.adjPos[this.position.x][this.position.y].forEach((position) => {
       // Increase cells in same x or y index by +1
       if (position.x == this.position.x || position.y == this.position.y)
-        world.grid[this.position.x][this.position.y].setDistance(
-          steps + 1,
-          property
-        );
+        world.grid[position.x][position.y].setDistance(steps + 1, property);
       // Diagonal values, increase by +2
-      else
-        world.grid[this.position.x][this.position.y].setDistance(
-          steps + 2,
-          property
-        );
+      else world.grid[position.x][position.y].setDistance(steps + 2, property);
     }, this);
   }
 
   setCellsNestDistance(stepsFromNest) {
     this.setCellsDistance(stepsFromNest, "nest");
+
     /*
     this.setNestDistance(stepsFromNest);
     world.adjPos[this.position.x][this.position.y].forEach((position) => {
@@ -289,6 +282,11 @@ class Cell {
         );
     }, this);*/
   }
+
+  /*
+  setNestDistance(steps) {
+    if (this.nestDistance > steps) this.nestDistance = steps;
+  }*/
 
   setCellsFoodDistance(stepsFromFood) {
     this.setCellsDistance(stepsFromFood, "food");
