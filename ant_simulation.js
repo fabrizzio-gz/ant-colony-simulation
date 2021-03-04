@@ -21,7 +21,7 @@ const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
 const ANTS = 1;
-const FOOD = 0;
+const FOOD = 100;
 const ANT_MEM = 0;
 const OBSTACLE_COUNT = 0;
 const OBSTACLE_SIZE = 5;
@@ -381,7 +381,8 @@ class Ant extends Cell {
       this.reachedFood();
 
     this.stepsFromNest++;
-    if (this.stepsFromFood) this.stepsFromFood++;
+    if (this.stepsFromFood && this.stepsFromFood >= 0) this.stepsFromFood++;
+
     let newPos;
     if (this.state == SCAVENGER_MODE) {
       // Try getting food trail, else move randomly
@@ -392,7 +393,7 @@ class Ant extends Cell {
 
     if (this.isDiagonal(newPos)) {
       this.stepsFromNest++;
-      if (this.stepsFromFood) this.stepsFromFood++;
+      if (this.stepsFromFood && this.stepsFromFood >= 0) this.stepsFromFood++;
     }
 
     this.updatePosition(newPos);
@@ -691,7 +692,7 @@ class Food extends Cell {
   constructor(x, y) {
     super(x, y);
     this.type = "Food";
-    this.freshness = 0; // To make ants choose it after pheromones
+    this.foodDistance = 0;
   }
 
   update() {}
