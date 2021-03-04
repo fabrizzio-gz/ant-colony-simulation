@@ -20,7 +20,7 @@ let world;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
-const ANTS = 50;
+const ANTS = 1;
 const FOOD = 0;
 const ANT_MEM = 0;
 const OBSTACLE_COUNT = 0;
@@ -65,6 +65,10 @@ function setup() {
   stroke(0, 0, 80);
 
   world = new World();
+
+  // Set a trail of food (debugging only)
+  // for (let i = 1; i < 20; i++) world.grid[25][25 + i].foodDistance = 100 - i;
+
   world.render();
 }
 
@@ -227,6 +231,7 @@ class Cell {
     this.size = CELL_SIZE;
     this.type = "Cell";
     this.nestDistance = Number.MAX_SAFE_INTEGER;
+    this.foodDistance = undefined;
     // this.foodProximity = 0 TODO
     // this.stepDuration = Cell.stepDuration;
   }
@@ -333,18 +338,22 @@ class Ant extends Cell {
     // this.prevPositions = [];
     // this.fuel = Ant.maxFuel;
     this.stepsFromNest = 0;
+    this.stepsFromFood = Number.MAX_SAFE_INTEGER;
     // this.penalty = 0;
   }
 
   update() {
+    debugger;
     if (world.grid[this.position.x][this.position.y].type == "Nest")
       this.reachedNest();
 
     this.stepsFromNest++;
 
     let newPos;
-    if (this.state == SCAVENGER_MODE) newPos = this.randomWalk();
-    else if (this.state == DELIVERY_MODE)
+    if (this.state == SCAVENGER_MODE) {
+      // Try getting food trail, else move randomly
+      if (!(newPos = this.getMinDistanceFood())) newPos = this.randomWalk();
+    } else if (this.state == DELIVERY_MODE)
       newPos = this.getMinNestDistanceCell();
 
     if (this.isDiagonal(newPos)) this.stepsFromNest++;
@@ -389,6 +398,34 @@ class Ant extends Cell {
   // For debugging
   return() {
     this.state = DELIVERY_MODE;
+  }
+
+  getMinDistanceFood() {
+    // debugger;
+    // Return a cell with food distance, undefined if none
+    const newPos = world.adjPos[this.position.x][this.position.y].reduce(
+      (foodPos, nextPos) => {
+        // if current value is undefined,
+        // return valid value
+        if (
+          world.grid[nextPos.x][nextPos.y].foodDistance &&
+          !world.grid[foodPos.x][foodPos.y].foodDistance
+        )
+          return nextPos;
+        // If valid value, compare with others and get min
+        if (
+          foodPos &&
+          world.grid[nextPos.x][nextPos.y].foodDistance <
+            world.grid[foodPos.x][foodPos.y].foodDistance
+        )
+          return nextPos;
+        return foodPos;
+      },
+      this.position
+    );
+
+    if (newPos != this.position) return newPos;
+    return undefined;
   }
 
   getMinNestDistanceCell() {
