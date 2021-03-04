@@ -207,6 +207,17 @@ class World {
     }
   }
 
+  // For debugging purposes
+  printSteps() {
+    console.log("Distance from nest");
+
+    for (let x = 0; x < this.gridX; x++) {
+      let distance = "";
+      for (let y = 0; y < this.gridY; y++)
+        distace += this.grid[x][y].nestDistance;
+    }
+  }
+
   update() {
     for (let x = 0; x < this.gridX; x++)
       for (let y = 0; y < this.gridY; y++) this.grid[x][y].update();
@@ -231,7 +242,7 @@ class Cell {
     this.size = CELL_SIZE;
     this.type = "Cell";
     this.nestDistance = Number.MAX_SAFE_INTEGER;
-    this.foodDistance = undefined;
+    this.foodDistance = -1;
     // this.foodProximity = 0 TODO
     // this.stepDuration = Cell.stepDuration;
   }
@@ -282,7 +293,7 @@ class Cell {
       if (this.nestDistance > steps) this.nestDistance = steps;
     } else {
       // property == "food"
-      if (!this.foodDistance) this.foodDistance = steps;
+      if (this.foodDistance == -1) this.foodDistance = steps;
       else if (this.foodDistance > steps) this.foodDistance = steps;
     }
   }
@@ -369,7 +380,7 @@ class Ant extends Cell {
     // this.prevPositions = [];
     // this.fuel = Ant.maxFuel;
     this.stepsFromNest = 0;
-    this.stepsFromFood = undefined;
+    this.stepsFromFood = -1;
     // this.penalty = 0;
   }
 
@@ -381,7 +392,7 @@ class Ant extends Cell {
       this.reachedFood();
 
     this.stepsFromNest++;
-    if (this.stepsFromFood && this.stepsFromFood >= 0) this.stepsFromFood++;
+    if (this.stepsFromFood >= 0) this.stepsFromFood++;
 
     let newPos;
     if (this.state == SCAVENGER_MODE) {
@@ -393,7 +404,7 @@ class Ant extends Cell {
 
     if (this.isDiagonal(newPos)) {
       this.stepsFromNest++;
-      if (this.stepsFromFood && this.stepsFromFood >= 0) this.stepsFromFood++;
+      if (this.stepsFromFood >= 0) this.stepsFromFood++;
     }
 
     this.updatePosition(newPos);
@@ -439,7 +450,7 @@ class Ant extends Cell {
 
   reachedNest() {
     this.stepsFromNest = 0;
-    this.stepsFromFood = undefined;
+    this.stepsFromFood = -1;
     this.state = SCAVENGER_MODE;
   }
 
