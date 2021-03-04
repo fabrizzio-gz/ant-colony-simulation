@@ -236,7 +236,28 @@ class Cell {
     // this.stepDuration = Cell.stepDuration;
   }
 
+  setCellsDistance(steps, property) {
+    this.setDistance(steps, property);
+
+    world.adjPos[this.position.x][this.position.y].forEach((position) => {
+      // Increase cells in same x or y index by +1
+      if (position.x == this.position.x || position.y == this.position.y)
+        world.grid[this.position.x][this.position.y].setDistance(
+          steps + 1,
+          property
+        );
+      // Diagonal values, increase by +2
+      else
+        world.grid[this.position.x][this.position.y].setDistance(
+          steps + 2,
+          property
+        );
+    }, this);
+  }
+
   setCellsNestDistance(stepsFromNest) {
+    this.setCellsDistance(stepsFromNest, "nest");
+    /*
     this.setNestDistance(stepsFromNest);
     world.adjPos[this.position.x][this.position.y].forEach((position) => {
       // Increase cells in same x or y index by +1
@@ -249,11 +270,21 @@ class Cell {
         world.grid[this.position.x][this.position.y].setNestDistance(
           stepsFromNest + 2
         );
-    }, this);
+    }, this);*/
   }
 
-  setNestDistance(stepsFromNest) {
-    if (this.nestDistance > stepsFromNest) this.nestDistance = stepsFromNest;
+  setCellsFoodDistance(stepsFromFood) {
+    this.setCellsDistance(stepsFromFood, "food");
+  }
+
+  setDistance(steps, property) {
+    if (property == "nest") {
+      if (this.nestDistance > steps) this.nestDistance = steps;
+    } else {
+      // property == "food"
+      if (!this.foodDistance) this.foodDistance = steps;
+      else if (this.foodDistance > steps) this.foodDistance = steps;
+    }
   }
 
   /*
@@ -338,29 +369,39 @@ class Ant extends Cell {
     // this.prevPositions = [];
     // this.fuel = Ant.maxFuel;
     this.stepsFromNest = 0;
-    this.stepsFromFood = Number.MAX_SAFE_INTEGER;
+    this.stepsFromFood = undefined;
     // this.penalty = 0;
   }
 
   update() {
-    debugger;
     if (world.grid[this.position.x][this.position.y].type == "Nest")
       this.reachedNest();
 
-    this.stepsFromNest++;
+    if (world.grid[this.position.x][this.position.y].type == "Food")
+      this.reachedFood();
 
+    this.stepsFromNest++;
+    if (this.stepsFromFood) this.stepsFromFood++;
     let newPos;
     if (this.state == SCAVENGER_MODE) {
       // Try getting food trail, else move randomly
       if (!(newPos = this.getMinDistanceFood())) newPos = this.randomWalk();
-    } else if (this.state == DELIVERY_MODE)
-      newPos = this.getMinNestDistanceCell();
+    }
+    // DELIVERY_MODE
+    else newPos = this.getMinNestDistanceCell();
 
-    if (this.isDiagonal(newPos)) this.stepsFromNest++;
+    if (this.isDiagonal(newPos)) {
+      this.stepsFromNest++;
+      if (this.stepsFromFood) this.stepsFromFood++;
+    }
 
     this.updatePosition(newPos);
 
-    world.grid[newPos.x][newPos.y].setCellsNestDistance(this.stepsFromNest);
+    if (this.state == SCAVENGER_MODE)
+      world.grid[newPos.x][newPos.y].setCellsNestDistance(this.stepsFromNest);
+    // DELIVERY_MODE
+    else
+      world.grid[newPos.x][newPos.y].setCellsFoodDistance(this.stepsFromFood);
     // TODO update prevPositions
 
     /*
@@ -390,8 +431,14 @@ class Ant extends Cell {
     return !(this.position.x == newPos.x || this.position.y == newPos.y);
   }
 
+  reachedFood() {
+    this.stepsFromFood = 0;
+    this.state = DELIVERY_MODE;
+  }
+
   reachedNest() {
     this.stepsFromNest = 0;
+    this.stepsFromFood = undefined;
     this.state = SCAVENGER_MODE;
   }
 
