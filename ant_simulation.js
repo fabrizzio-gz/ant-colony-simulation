@@ -208,13 +208,19 @@ class World {
   }
 
   // For debugging purposes
-  printSteps() {
-    console.log("Distance from nest");
+  printSteps(toPrint = "nest") {
+    if (toPrint == "nest") {
+      console.log("Distance from nest");
 
-    for (let x = 0; x < this.gridX; x++) {
-      let distance = "";
-      for (let y = 0; y < this.gridY; y++)
-        distace += this.grid[x][y].nestDistance;
+      for (let x = 0; x < this.gridX; x++) {
+        let distance = "";
+        for (let y = 0; y < this.gridY; y++)
+          distance +=
+            this.grid[x][y].nestDistance == Number.MAX_SAFE_INTEGER
+              ? "-"
+              : this.grid[x][y].nestDistance;
+        console.log(distance);
+      }
     }
   }
 
