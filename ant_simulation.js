@@ -20,7 +20,7 @@ let world;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
-const ANTS = 1;
+const ANTS = 50;
 const FOOD = 0;
 const ANT_MEM = 0;
 const OBSTACLE_COUNT = 0;
@@ -329,7 +329,7 @@ class Ant extends Cell {
   constructor(x, y) {
     super(x, y);
     this.type = "Ant";
-    this.state = RANDOM_WALK_MODE;
+    this.state = SCAVENGER_MODE;
     // this.prevPositions = [];
     // this.fuel = Ant.maxFuel;
     this.stepsFromNest = 0;
@@ -338,12 +338,12 @@ class Ant extends Cell {
 
   update() {
     if (world.grid[this.position.x][this.position.y].type == "Nest")
-      this.stepsFromNest = 0;
+      this.reachedNest();
 
     this.stepsFromNest++;
 
     let newPos;
-    if (this.state == RANDOM_WALK_MODE) newPos = this.randomWalk();
+    if (this.state == SCAVENGER_MODE) newPos = this.randomWalk();
     else if (this.state == DELIVERY_MODE)
       newPos = this.getMinNestDistanceCell();
 
@@ -381,6 +381,12 @@ class Ant extends Cell {
     return !(this.position.x == newPos.x || this.position.y == newPos.y);
   }
 
+  reachedNest() {
+    this.stepsFromNest = 0;
+    this.state = SCAVENGER_MODE;
+  }
+
+  // For debugging
   return() {
     this.state = DELIVERY_MODE;
   }
