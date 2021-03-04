@@ -345,6 +345,7 @@ class Ant extends Cell {
     if (this.state == RANDOM_WALK_MODE) {
       newPos = this.randomWalk();
     }
+    if (this.isDiagonal(newPos)) this.stepsFromNest++;
 
     this.updatePosition(newPos);
 
@@ -372,9 +373,13 @@ class Ant extends Cell {
       if (this.penalty == 0 && this.nestProximity)
         world.grid[this.position.x][this.position.y].addStep(2);
     }  */
-  } /*
+  }
 
-  
+  isDiagonal(newPos) {
+    return !(this.position.x == newPos.x || this.position.y == newPos.y);
+  }
+
+  /*
   deliver_food() {
     const nextCell = this.getHighestStep();
 
