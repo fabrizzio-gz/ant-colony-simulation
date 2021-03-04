@@ -20,8 +20,8 @@ let world;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
-const ANTS = 1;
-const FOOD = 0;
+const ANTS = 10;
+const FOOD = 20;
 const ANT_MEM = 0;
 const OBSTACLE_COUNT = 0;
 const OBSTACLE_SIZE = 5;
@@ -218,6 +218,17 @@ class World {
             this.grid[x][y].nestDistance == Number.MAX_SAFE_INTEGER
               ? "-"
               : this.grid[x][y].nestDistance;
+        console.log(distance);
+      }
+    } else {
+      console.log("Distance from food sources");
+      for (let y = 0; y < this.gridY; y++) {
+        let distance = "";
+        for (let x = 0; x < this.gridX; x++)
+          distance +=
+            this.grid[x][y].foodDistance == -1
+              ? "-"
+              : this.grid[x][y].foodDistance;
         console.log(distance);
       }
     }
