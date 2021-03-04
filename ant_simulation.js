@@ -20,8 +20,10 @@ let world;
 const CELL_SIZE = 5;
 const GRID_W = 50;
 const GRID_H = 50;
-const ANTS = 10;
-const FOOD = 20;
+const NEST_X = 25;
+const NEST_Y = 25;
+const ANTS = 20;
+const FOOD = 10;
 const ANT_MEM = 0;
 const OBSTACLE_COUNT = 0;
 const OBSTACLE_SIZE = 5;
@@ -79,8 +81,8 @@ class World {
       gridY: GRID_H,
       obstacleCount: OBSTACLE_COUNT,
       ants: ANTS,
-      nestX: 25,
-      nestY: 25,
+      nestX: NEST_X,
+      nestY: NEST_Y,
       food: FOOD,
     }
   ) {
@@ -479,26 +481,23 @@ class Ant extends Cell {
     // Return a cell with food distance, undefined if none
     const newPos = world.adjPos[this.position.x][this.position.y].reduce(
       (foodPos, nextPos) => {
-        // if current value is undefined,
-        // return valid value
+        // If nextPos doesn't have a valid value, skip
+        if (world.grid[nextPos.x][nextPos.y].foodDistance == -1) return foodPos;
+        // If current foodPos isn't set ( == -1) but next is set
+        if (world.grid[foodPos.x][foodPos.y].foodDistance == -1) return nextPos;
+        // If nextPos is a valid value, update to min
         if (
-          world.grid[nextPos.x][nextPos.y].foodDistance &&
-          !world.grid[foodPos.x][foodPos.y].foodDistance
-        )
-          return nextPos;
-        // If valid value, compare with others and get min
-        if (
-          foodPos &&
+          world.grid[foodPos.x][foodPos.y].foodDistance != -1 &&
           world.grid[nextPos.x][nextPos.y].foodDistance <
             world.grid[foodPos.x][foodPos.y].foodDistance
         )
           return nextPos;
         return foodPos;
-      },
-      this.position
+      }
     );
 
-    if (newPos != this.position) return newPos;
+    // Return newPos if it has a valid foodDistance value
+    if (world.grid[newPos.x][newPos.y].foodDistance != -1) return newPos;
     return undefined;
   }
 
