@@ -260,7 +260,7 @@ class World {
 }
 
 class Cell {
-  static stepDuration = Math.max(GRID_W, GRID_H) * 5;
+  static stepDuration = Math.max(GRID_W, GRID_H) * 10;
   // Maximum food distance duration
   static foodMaxD = Math.max(GRID_W, GRID_H) * 1.5;
 
@@ -359,8 +359,9 @@ class Cell {
   }
 
   render() {
-    if (this.fDuration == 0) fill(48, 2, Math.min(this.nestDistance, 255));
-    else fill(50, 100, 100);
+    if (this.fDuration == 0) fill(48, 2, Math.max(98 - this.steps * 2, 20));
+    // Make darker with more steps
+    else fill(50, 100, 100); // Show as pheromone (food trail)
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
 }
