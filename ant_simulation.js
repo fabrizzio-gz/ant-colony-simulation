@@ -463,7 +463,7 @@ class Ant extends Cell {
 
   reachedFood() {
     this.stepsFromFood = 0;
-    world.grid[this.position.x][this.position.y].eatFood();
+    getCell(this.position).eatFood();
     this.state = DELIVERY_MODE;
   }
 
@@ -792,6 +792,8 @@ function draw() {
   world.update();
   world.render();
 }
+
+const getCell = (position) => world.grid[position.x][position.y];
 
 // fast-forward
 const ff = () => {
