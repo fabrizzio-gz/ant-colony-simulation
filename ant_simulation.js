@@ -313,6 +313,10 @@ class Cell {
     this.fDuration = 0;
   }
 
+  stepOnCell() {
+    this.addStep();
+  }
+
   addStep(n = 1) {
     // Reset decrease count
     this.stepDuration = Cell.stepDuration;
@@ -397,9 +401,13 @@ class Ant extends Cell {
     if (world.grid[this.position.x][this.position.y].type == "Food")
       this.reachedFood();
 
+    // Update current cell steps count
+    getCell(this.position).stepOnCell();
+
     this.stepsFromNest++;
     if (this.stepsFromFood >= 0) this.stepsFromFood++;
 
+    // Getting new position
     let newPos;
     if (this.state == SCAVENGER_MODE) {
       // Try getting food trail, else move randomly
@@ -581,7 +589,11 @@ class Nest extends Cell {
   }
 
   setNestDistance(stepsFromNest) {
-    // Do nothing
+    // Never set nest distance to nest
+  }
+
+  stepOnCell() {
+    // Do not increase Nest steps
   }
 
   update() {}
