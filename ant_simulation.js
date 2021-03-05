@@ -18,15 +18,18 @@ along with this software.  If not, see <https://www.gnu.org/licenses/>.
 // globals and settings
 let world;
 const CELL_SIZE = 5;
-const OFFSET_X = 250;
+const X_OFFSET = 250;
 const GRID_W = 50;
 const GRID_H = 50;
-const ANTS = 20;
-const FOOD = 10;
-const ANT_MEM = 5;
-const OBSTACLE_COUNT = 10;
+const NEST_X = 25;
+const NEST_Y = 25;
+const ANTS = 10;
+const FOOD = 50;
+const FOOD_STOCK = 10;
+const ANT_MEM = 0;
+const OBSTACLE_COUNT = 0;
 const OBSTACLE_SIZE = 5;
-const PHEROMONE_CELLS_LIMIT = 5;
+const PHEROMONE_CELLS_LIMIT = 0;
 const RANDOM_WALK_MODE = "Random";
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
@@ -44,13 +47,13 @@ function setup() {
   const ffButton = createButton("ff");
   const stepButton = createButton("step");
 
-  slowButton.position(OFFSET_X + 20, GRID_H * CELL_SIZE + 20);
-  normalButton.position(OFFSET_X + 100, GRID_H * CELL_SIZE + 20);
-  fastButton.position(OFFSET_X + 200, GRID_H * CELL_SIZE + 20);
-  resetButton.position(OFFSET_X + 20, GRID_H * CELL_SIZE + 50);
-  toggleButton.position(OFFSET_X + 100, GRID_H * CELL_SIZE + 50);
-  ffButton.position(OFFSET_X + 200, GRID_H * CELL_SIZE + 50);
-  stepButton.position(OFFSET_X + 100, GRID_H * CELL_SIZE + 80);
+  slowButton.position(X_OFFSET + 20, GRID_H * CELL_SIZE + 20);
+  normalButton.position(X_OFFSET + 100, GRID_H * CELL_SIZE + 20);
+  fastButton.position(X_OFFSET + 200, GRID_H * CELL_SIZE + 20);
+  resetButton.position(X_OFFSET + 20, GRID_H * CELL_SIZE + 50);
+  toggleButton.position(X_OFFSET + 100, GRID_H * CELL_SIZE + 50);
+  ffButton.position(X_OFFSET + 200, GRID_H * CELL_SIZE + 50);
+  stepButton.position(X_OFFSET + 100, GRID_H * CELL_SIZE + 80);
 
   slowButton.mousePressed(slow);
   normalButton.mousePressed(normal);
@@ -61,11 +64,15 @@ function setup() {
   stepButton.mousePressed(step);
 
   colorMode(HSB);
-  strokeWeight(1);
-  background(48, 2, 98);
-  stroke(0, 0, 80);
+  // background(48, 2, 98);
+  background(0, 0, 100);
+  strokeWeight(0);
 
   world = new World();
+
+  // Set a trail of food (debugging only)
+  // for (let i = 1; i < 20; i++) world.grid[25][25 + i].foodDistance = 100 - i;
+  world.renderBackground();
   world.render();
 }
 
@@ -76,8 +83,8 @@ class World {
       gridY: GRID_H,
       obstacleCount: OBSTACLE_COUNT,
       ants: ANTS,
-      nestX: 25,
-      nestY: 25,
+      nestX: NEST_X,
+      nestY: NEST_Y,
       food: FOOD,
     }
   ) {
@@ -204,11 +211,68 @@ class World {
     }
   }
 
+  // For debugging purposes
+  printSteps(toPrint = "nest") {
+    if (toPrint == "nest") {
+      console.log("Distance from nest");
+      for (let y = 0; y < this.gridY; y++) {
+        let distance = "";
+        for (let x = 0; x < this.gridX; x++)
+          if (x == this.nest.position.x && y == this.nest.position.y)
+            distance += "x|";
+          else
+            distance +=
+              this.grid[x][y].nestDistance == Number.MAX_SAFE_INTEGER
+                ? "-|"
+                : this.grid[x][y].nestDistance + "|";
+        console.log(distance);
+      }
+    } else {
+      console.log("Distance from food sources");
+      for (let y = 0; y < this.gridY; y++) {
+        let distance = "";
+        for (let x = 0; x < this.gridX; x++)
+          if (x == this.nest.position.x && y == this.nest.position.y)
+            distance += "x|";
+          else
+            distance +=
+              this.grid[x][y].foodDistance == -1
+                ? "-|"
+                : this.grid[x][y].foodDistance + "|";
+        console.log(distance);
+      }
+    }
+  }
+
   update() {
     for (let x = 0; x < this.gridX; x++)
       for (let y = 0; y < this.gridY; y++) this.grid[x][y].update();
 
     this.ants.forEach((ant) => ant.update());
+  }
+
+  renderBorder() {
+    // Should be drawn only once but top borders don't show
+    // Temp solution
+    noFill();
+    strokeWeight(1);
+    stroke(0, 0, 0);
+    quad(
+      0,
+      0,
+      CELL_SIZE * GRID_W,
+      0,
+      CELL_SIZE * GRID_W,
+      CELL_SIZE * GRID_H,
+      0,
+      CELL_SIZE * GRID_H
+    );
+    strokeWeight(0);
+  }
+
+  renderBackground() {
+    fill(48, 2, 98);
+    square(0, 0, GRID_W * CELL_SIZE, GRID_H * CELL_SIZE);
   }
 
   render() {
@@ -217,26 +281,65 @@ class World {
     this.ants.forEach((ant) => ant.render());
     // Always render nest on top
     this.nest.render();
+    world.renderBorder();
   }
 }
 
 class Cell {
-  static stepDuration = Math.round(Math.max(GRID_W, GRID_H) * 10);
+  static stepDuration = Math.max(GRID_W, GRID_H) * 10;
+  // Maximum food distance duration
+  static foodMaxD = Math.max(GRID_W, GRID_H) * 1.5;
 
   constructor(x, y, steps = 0) {
     this.position = createVector(x, y);
     this.size = CELL_SIZE;
-    this.type = "Cell"; // a hack because I don't know how to do pattern
-    // matching on types in js yet (is it possible?)
+    this.type = "Cell";
+    this.nestDistance = Number.MAX_SAFE_INTEGER;
+    this.foodDistance = -1;
+    this.fDuration = 0; // food distance duration
     this.steps = steps;
-    this.stepDuration = Cell.stepDuration;
+    // this.foodProximity = 0 TODO
+    // this.stepDuration = Cell.stepDuration;
   }
 
-  addStepsRegion() {
+  setCellsNestDistance(stepsFromNest) {
+    this.setCellsDistance(stepsFromNest, "nest");
+  }
+
+  setFoodDistance(stepsFromFood) {
+    this.setDistance(stepsFromFood, "food");
+    this.fDuration = Cell.foodMaxD;
+    // Never set nest value
+    world.nest.foodDistance = -1;
+  }
+
+  setCellsDistance(steps, property) {
+    this.setDistance(steps, property);
+
     world.adjPos[this.position.x][this.position.y].forEach((position) => {
-      const adjCell = world.grid[position.x][position.y];
-      if (adjCell.type != "Pheromone") adjCell.addStep();
-    });
+      // Increase cells in same x or y index by +1
+      if (position.x == this.position.x || position.y == this.position.y)
+        world.grid[position.x][position.y].setDistance(steps + 1, property);
+      // Diagonal values, increase by +2
+      else world.grid[position.x][position.y].setDistance(steps + 2, property);
+    }, this);
+  }
+
+  setDistance(steps, property) {
+    if (property == "nest") {
+      if (this.nestDistance > steps) this.nestDistance = steps;
+    } else {
+      // property == "food"
+      if (this.foodDistance == -1) this.foodDistance = steps;
+      else if (this.foodDistance > steps) this.foodDistance = steps;
+    }
+  }
+
+  eraseFoodTrail() {
+    this.fDuration = 0;
+  }
+
+  stepOnCell() {
     this.addStep();
   }
 
@@ -266,16 +369,14 @@ class Cell {
       );
   }
 
-  setStepsToClosestMin() {
-    let minSteps = this.steps;
-    world.adjPos[this.position.x][this.position.y].forEach((position) => {
-      const adjCellSteps = world.grid[position.x][position.y].steps;
-      if (adjCellSteps < minSteps) minSteps = adjCellSteps;
-    });
-    this.steps = minSteps;
+  update() {
+    this.updateSteps();
+    this.fDuration = Math.max(--this.fDuration, 0);
+    // Reset when duration passes
+    if (this.fDuration == 0) this.foodDistance = -1;
   }
 
-  update() {
+  updateSteps() {
     this.stepDuration--;
     if (Number.isNaN(this.stepDuration)) debugger;
     if (this.stepDuration < 0) this.decreaseSteps();
@@ -288,8 +389,9 @@ class Cell {
   }
 
   render() {
-    fill(48, 2, Math.max(98 - this.steps / 2, 20)); // Make darker with more steps
-    // fill(48, 2, 98);
+    if (this.fDuration == 0) fill(48, 2, Math.max(98 - this.steps * 2, 20));
+    // Make darker with more steps
+    else fill(50, 100, 100); // Show as pheromone (food trail)
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
 }
@@ -303,8 +405,7 @@ class Obstacle extends Cell {
   update() {}
 
   render() {
-    fill(240, 100, 100); // Make darker with more steps
-    // fill(48, 2, 98);
+    fill(240, 100, 100);
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
 }
@@ -315,227 +416,174 @@ class Ant extends Cell {
   constructor(x, y) {
     super(x, y);
     this.type = "Ant";
-    this.state = RANDOM_WALK_MODE;
-    this.prevPositions = [];
-    this.fuel = Ant.maxFuel;
-    this.nestProximity = Ant.maxFuel;
-    this.penalty = 0;
+    this.state = SCAVENGER_MODE;
+    // this.fuel = Ant.maxFuel;
+    this.stepsFromNest = 0;
+    this.stepsFromFood = -1;
+    this.erase = false;
+    this.prevPosition = createVector(-1, -1);
+    // this.penalty = 0;
   }
 
   update() {
     // Ants change `steps` property only when scavenging
     // Used to avoid ants looping while delivering food
     if (world.grid[this.position.x][this.position.y].type == "Nest")
-      this.restoreNestProximity();
-    this.nestProximity = Math.max(--this.nestProximity, 0);
-    if (this.state === DELIVERY_MODE) {
-      this.fuel--;
-      this.deliver_food();
-    } else if (this.state === SCAVENGER_MODE) {
-      this.scavenge();
-      if (world.grid[this.position.x][this.position.y].type != "Pheromone")
-        world.grid[this.position.x][this.position.y].addStepsRegion();
-    } else {
-      this.randomWalk();
-      // Add step to next cell
-      // If ant has been away from nest too long,
-      // it won't add steps
-      if (this.penalty == 0 && this.nestProximity)
-        world.grid[this.position.x][this.position.y].addStep(2);
-    }
-  }
+      this.reachedNest();
 
-  deliver_food() {
-    const nextCell = this.getHighestStep();
+    if (world.grid[this.position.x][this.position.y].type == "Food")
+      this.reachedFood();
 
-    if (nextCell.type == "Nest") {
-      this.restoreFuel();
-      this.prevPositions = [];
-      this.state = SCAVENGER_MODE;
-    }
+    // Update current cell steps count
+    getCell(this.position).stepOnCell();
 
-    // Place pheromone before moving to next cell
-    this.place_pheromone(this.position.x, this.position.y);
-    // Save previous position and delete oldest one
-    // if there are more than 3 positions saved
-    if (
-      this.prevPositions.unshift(
-        createVector(this.position.x, this.position.y)
-      ) > ANT_MEM
-    )
-      this.prevPositions.pop();
-    this.position.x = nextCell.position.x;
-    this.position.y = nextCell.position.y;
-    if (this.pheromoneSurrounded()) this.normalizeSteps();
-    else if (this.fuel < 0) this.failDelivery();
-  }
+    this.stepsFromNest++;
+    if (this.stepsFromFood >= 0) this.stepsFromFood++;
 
-  getHighestStep() {
-    let x = this.position.x;
-    let y = this.position.y;
-
-    // Get the locations of nearby cells
-    // Verify constraints later on.
-    let nearby = world.adjPos[x][y];
-
-    // Constrain options to only "Cell" or "Pheromones"
-    // Filter previous cell (prevPosition)
-    const nearbyCells = [];
-    for (const position of nearby) {
-      const cell = world.grid[position.x][position.y];
+    // Getting new position
+    let newPos;
+    if (this.state == SCAVENGER_MODE) {
+      // Try getting food trail, else move randomly
+      // If initial position is the nest, then move randomly
       if (
-        (cell.type == "Cell" || cell.type == "Pheromone") &&
-        !this.prevPositions.some(
-          (prevPosition) =>
-            cell.position.x == prevPosition.x &&
-            cell.position.y == prevPosition.y
-        )
+        this.isCloseToNest() ||
+        !(newPos = this.getMinDistanceFood()) ||
+        isSamePosition(newPos, this.prevPosition)
       )
-        nearbyCells.push(cell);
-      else if (cell.type == "Nest") return cell;
+        do newPos = this.randomWalk();
+        while (isSamePosition(newPos, this.prevPosition));
+    }
+    // DELIVERY_MODE
+    else {
+      newPos = this.getMinNestDistanceCell();
+      if (this.erase) getCell(this.position).eraseFoodTrail();
     }
 
-    // If the way in is the only way back
-    if (nearbyCells.length == 0)
-      nearbyCells.push(
-        world.grid[this.prevPositions[0].x][this.prevPositions[0].y]
-      );
+    if (this.isDiagonal(newPos)) {
+      this.stepsFromNest++;
+      if (this.stepsFromFood >= 0) this.stepsFromFood++;
+    }
 
-    // Get the nearest cell with highest Step
-    let max_step = random(nearbyCells);
-    for (const cell of nearbyCells)
-      if (cell.steps > max_step.steps) max_step = cell;
+    this.saveOldPosition();
+    this.updatePosition(newPos);
 
-    if (!max_step) debugger;
-    return max_step;
+    if (this.state == SCAVENGER_MODE) this.updateNestDistance();
+    // DELIVERY_MODE
+    else if (this.stepsFromFood != -1)
+      getCell(this.position).setFoodDistance(this.stepsFromFood);
+    // TODO update prevPositions
   }
 
-  pheromoneSurrounded() {
-    const adjPos = world.adjPos[this.position.x][this.position.y];
-    let pheromoneCellsCount = 0;
-    adjPos.forEach((position) => {
-      const cell = world.grid[position.x][position.y];
-      if (cell.type == "Pheromone") pheromoneCellsCount++;
-    });
-
-    return pheromoneCellsCount >= PHEROMONE_CELLS_LIMIT;
-  }
-
-  normalizeSteps() {
-    world.adjPos[this.position.x][this.position.y].forEach((position) => {
-      world.grid[position.x][position.y].setStepsToClosestMin();
-    });
-    world.grid[this.position.x][this.position.y].setStepsToClosestMin();
-  }
-
-  failDelivery() {
-    this.state = RANDOM_WALK_MODE;
-    this.setPenalty();
-    this.restoreFuel();
-    this.prevPositions = [];
-    // Make current position less appealing
-    world.grid[this.position.x][this.position.y].steps = 0;
-    // "Bomb surrounding possitions to avoid same path
-    world.adjPos[this.position.x][this.position.y].forEach((position) => {
-      const cell = world.grid[position.x][position.y];
-      // Destroy surrounding pheromones
-      if (cell.type == "Pheromone")
-        world.grid[position.x][position.y] = new Cell(position.x, position.y);
-    });
-  }
-
-  restoreFuel() {
-    this.fuel = Ant.maxFuel;
-  }
-
-  restoreNestProximity(val = Ant.maxFuel) {
-    this.nestProximity = val;
-  }
-
-  setPenalty() {
-    this.penalty = Math.round(Ant.maxFuel / 2);
-  }
-
-  scavenge() {
-    let min_pheromone = this.seek_pheromone();
-    // move by 1 unit exactly in a random direction
-    let new_x = min_pheromone.position.x;
-    let new_y = min_pheromone.position.y;
-
-    // Check collisions before moving
-    let landed_on = world.grid[new_x][new_y]; // [Cell]
-
-    if (landed_on.type == "Food") {
-      this.state = DELIVERY_MODE;
-      this.restoreNestProximity(Math.round(Ant.maxFuel / 2));
-    } else if (landed_on.type == "Pheromone")
-      // Consume pheromone (test without consuming too)
-      world.grid[new_x][new_y] = new Cell(new_x, new_y, landed_on.steps);
-
-    // Ant can only carry food when scavenging
-
-    // Change the ant position
-    // Don't save previous position when scavenging
-    //this.prevPosition.x = this.position.x;
-    // this.prevPosition.y = this.position.y;
-    this.position.x = new_x;
-    this.position.y = new_y;
-  }
-
-  place_pheromone(prev_x, prev_y) {
-    if (world.grid[prev_x][prev_y].type != "Food")
-      world.grid[prev_x][prev_y] = new Pheromone(
-        prev_x,
-        prev_y,
-        world.grid[prev_x][prev_y].steps
-      );
-  }
-
-  seek_pheromone() {
-    let x = this.position.x;
-    let y = this.position.y;
-
-    // Get the locations of nearby cells
-    let nearby = world.adjPos[x][y];
-
-    // Get the min nearby pheromone
-    let freshness =
-      world.grid[this.position.x][this.position.y].freshness ?? 1000;
-    let random_neighbor = random(nearby);
-    let min_pheromone = world.grid[random_neighbor.x][random_neighbor.y];
-    for (let i = 0; i < nearby.length; i++) {
-      let nx = nearby[i].x;
-      let ny = nearby[i].y;
-      let cell = world.grid[nx][ny];
-      if (cell.type === "Pheromone" || cell.type == "Food") {
-        if (cell.freshness < freshness) {
-          freshness = cell.freshness;
-          min_pheromone = cell;
-        }
+  getMinDistanceFood() {
+    const initialDistance =
+      getCell(this.position).foodDistance == -1
+        ? Number.MAX_SAFE_INTEGER
+        : getCell(this.position).foodDistance;
+    // Return a cell with less food distance, undefined if none
+    const newPos = world.adjPos[this.position.x][this.position.y].reduce(
+      (foodPos, nextPos) => {
+        // If nextPos doesn't have a valid value, skip
+        if (world.grid[nextPos.x][nextPos.y].foodDistance == -1) return foodPos;
+        // If current foodPos isn't set ( == -1) but next is set
+        if (world.grid[foodPos.x][foodPos.y].foodDistance == -1) return nextPos;
+        // If nextPos is a valid value, update to min
+        if (
+          world.grid[foodPos.x][foodPos.y].foodDistance != -1 &&
+          world.grid[nextPos.x][nextPos.y].foodDistance <
+            world.grid[foodPos.x][foodPos.y].foodDistance
+        )
+          return nextPos;
+        return foodPos;
       }
-    }
-    return min_pheromone;
+    );
+
+    // If no improvement, abort
+    if (getCell(newPos).foodDistance >= initialDistance) return undefined;
+
+    // Return newPos if it has a valid foodDistance value
+    if (world.grid[newPos.x][newPos.y].foodDistance != -1) return newPos;
+    return undefined;
+  }
+
+  getMinNestDistanceCell() {
+    const nextPos = world.adjPos[this.position.x][this.position.y].reduce(
+      (minPos, nextPos) => {
+        if (
+          world.grid[nextPos.x][nextPos.y].nestDistance <
+          world.grid[minPos.x][minPos.y].nestDistance
+        )
+          return nextPos;
+        return minPos;
+      }
+    );
+    return nextPos;
   }
 
   randomWalk() {
-    const nextPos = random(world.adjPos[this.position.x][this.position.y]);
-    this.position.x = nextPos.x;
-    this.position.y = nextPos.y;
-    this.penalty = Math.max(this.penalty - 1, 0);
-    if (this.penalty == 0) {
-      const nextCell = world.grid[nextPos.x][nextPos.y];
-      if (nextCell.type == "Pheromone" || nextCell.type == "Nest")
-        this.state = SCAVENGER_MODE;
-      else if (nextCell.type == "Food") this.state = DELIVERY_MODE;
-    }
+    return random(world.adjPos[this.position.x][this.position.y]);
+  }
+
+  isCloseToNest() {
+    return isSamePosition(this.position, world.nest.position);
+  }
+
+  startEraseFoodTrail() {
+    this.erase = true;
+  }
+
+  saveOldPosition() {
+    this.prevPosition.x = this.position.x;
+    this.prevPosition.y = this.position.y;
+  }
+
+  updatePosition(newPos) {
+    this.position.x = newPos.x;
+    this.position.y = newPos.y;
+  }
+
+  updateNestDistance() {
+    if (this.stepsFromNest > getCell(this.position).nestDistance)
+      // Update ant distance to cell stored value
+      this.stepsFromNest = getCell(this.position).nestDistance;
+    // Update cells with ant's new closest distance
+    else getCell(this.position).setCellsNestDistance(this.stepsFromNest);
+  }
+
+  isDiagonal(newPos) {
+    return !(this.position.x == newPos.x || this.position.y == newPos.y);
+  }
+
+  reachedFood() {
+    this.stepsFromFood = 0;
+    getCell(this.position).eatFood();
+    if (getCell(this.position).foodLeft <= 0) this.startEraseFoodTrail();
+    this.state = DELIVERY_MODE;
+  }
+
+  reachedNest() {
+    this.stepsFromNest = 0;
+    this.stepsFromFood = -1;
+    this.resetPrevPosition();
+    this.state = SCAVENGER_MODE;
+    this.erase = false;
+  }
+
+  resetPrevPosition() {
+    this.prevPosition.x = world.nest.position.x;
+    this.prevPosition.y = world.nest.position.y;
+  }
+
+  // For debugging
+  return() {
+    this.state = DELIVERY_MODE;
   }
 
   render() {
-    if (this.state === SCAVENGER_MODE || this.state == RANDOM_WALK_MODE) {
-      fill(100, 100, 70);
-    } else {
-      fill(20, 80, 80);
-    }
+    // if (this.state === SCAVENGER_MODE || this.state == RANDOM_WALK_MODE) {
+    //   fill(100, 100, 70);
+    // } else {
+    fill(20, 80, 80);
+    //  }
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
 }
@@ -544,10 +592,21 @@ class Food extends Cell {
   constructor(x, y) {
     super(x, y);
     this.type = "Food";
-    this.freshness = 0; // To make ants choose it after pheromones
+    this.foodDistance = 0;
+    this.foodLeft = FOOD_STOCK;
   }
 
-  update() {}
+  eatFood() {
+    this.foodLeft--;
+  }
+
+  update() {
+    if (this.foodLeft <= 0)
+      world.grid[this.position.x][this.position.y] = new Cell(
+        this.position.x,
+        this.position.y
+      );
+  }
 
   render() {
     fill(20, 100, 100);
@@ -559,7 +618,15 @@ class Nest extends Cell {
   constructor(x, y) {
     super(x, y);
     this.type = "Nest";
-    this.steps = 1000; // To make ants return to it
+    this.nestDistance = 0;
+  }
+
+  setNestDistance(stepsFromNest) {
+    // Never set nest distance to nest
+  }
+
+  stepOnCell() {
+    // Do not increase Nest steps
   }
 
   update() {}
@@ -602,6 +669,10 @@ function draw() {
   world.update();
   world.render();
 }
+
+const getCell = (position) => world.grid[position.x][position.y];
+
+const isSamePosition = (pos1, pos2) => pos1.x == pos2.x && pos1.y == pos2.y;
 
 // fast-forward
 const ff = () => {
