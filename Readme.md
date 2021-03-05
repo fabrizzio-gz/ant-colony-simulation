@@ -6,7 +6,9 @@ Forked from [must-compute](https://sr.ht/~must-compute/).
 
 ## Running the simulation
 
-Open `main.html` with your preferred browser.
+[Live demo](https://editor.p5js.org/fabrizzio.gz/present/DjnUc_40Y) (code may not be up to date with repo). 
+
+Alternatively, `git clone` repo and open  `main.html` with your preferred browser.
 
 ## Dependencies
 
