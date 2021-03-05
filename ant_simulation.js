@@ -22,7 +22,7 @@ const GRID_W = 50;
 const GRID_H = 50;
 const NEST_X = 25;
 const NEST_Y = 25;
-const ANTS = 1;
+const ANTS = 10;
 const FOOD = 50;
 const FOOD_STOCK = 10;
 const ANT_MEM = 0;
@@ -386,7 +386,12 @@ class Ant extends Cell {
     let newPos;
     if (this.state == SCAVENGER_MODE) {
       // Try getting food trail, else move randomly
-      if (!(newPos = this.getMinDistanceFood())) newPos = this.randomWalk();
+      if (
+        !(newPos = this.getMinDistanceFood()) ||
+        isSamePosition(newPos, this.prevPosition)
+      )
+        do newPos = this.randomWalk();
+        while (isSamePosition(newPos, this.prevPosition));
     }
     // DELIVERY_MODE
     else {
@@ -598,6 +603,8 @@ function draw() {
 }
 
 const getCell = (position) => world.grid[position.x][position.y];
+
+const isSamePosition = (pos1, pos2) => pos1.x == pos2.x && pos1.y == pos2.y;
 
 // fast-forward
 const ff = () => {
