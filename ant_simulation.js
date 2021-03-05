@@ -387,11 +387,9 @@ class Ant extends Cell {
 
     this.updatePosition(newPos);
 
-    if (this.state == SCAVENGER_MODE)
-      world.grid[newPos.x][newPos.y].setCellsNestDistance(this.stepsFromNest);
+    if (this.state == SCAVENGER_MODE) this.updateNestDistance();
     // DELIVERY_MODE
-    else
-      world.grid[newPos.x][newPos.y].setCellsFoodDistance(this.stepsFromFood);
+    else getCell(this.position).setCellsFoodDistance(this.stepsFromFood);
     // TODO update prevPositions
   }
 
@@ -447,6 +445,14 @@ class Ant extends Cell {
   updatePosition(newPos) {
     this.position.x = newPos.x;
     this.position.y = newPos.y;
+  }
+
+  updateNestDistance() {
+    if (this.stepsFromNest > getCell(this.position).nestDistance)
+      // Update ant distance to cell stored value
+      this.stepsFromNest = getCell(this.position).nestDistance;
+    // Update cells with ant's new closest distance
+    else getCell(this.position).setCellsNestDistance(this.stepsFromNest);
   }
 
   isDiagonal(newPos) {
