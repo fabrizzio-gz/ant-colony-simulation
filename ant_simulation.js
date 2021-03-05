@@ -18,13 +18,13 @@ along with this software.  If not, see <https://www.gnu.org/licenses/>.
 // globals and settings
 let world;
 const CELL_SIZE = 5;
-const GRID_W = 10;
-const GRID_H = 10;
-const NEST_X = 0;
-const NEST_Y = 0;
-const ANTS = 1;
-const FOOD = 10;
-const FOOD_STOCK = 1;
+const GRID_W = 50;
+const GRID_H = 50;
+const NEST_X = 25;
+const NEST_Y = 25;
+const ANTS = 10;
+const FOOD = 20;
+const FOOD_STOCK = 10;
 const ANT_MEM = 0;
 const OBSTACLE_COUNT = 0;
 const OBSTACLE_SIZE = 5;
@@ -254,7 +254,9 @@ class World {
 }
 
 class Cell {
-  static stepDuration = Math.round(Math.max(GRID_W, GRID_H) * 10);
+  static stepDuration = Math.max(GRID_W, GRID_H) * 10;
+  // Maximum food distance duration
+  static foodMaxD = Math.max(GRID_W, GRID_H) * 1.5;
 
   constructor(x, y, steps = 0) {
     this.position = createVector(x, y);
@@ -262,8 +264,20 @@ class Cell {
     this.type = "Cell";
     this.nestDistance = Number.MAX_SAFE_INTEGER;
     this.foodDistance = -1;
+    this.fDuration = 0; // food distance duration
     // this.foodProximity = 0 TODO
     // this.stepDuration = Cell.stepDuration;
+  }
+
+  setCellsNestDistance(stepsFromNest) {
+    this.setCellsDistance(stepsFromNest, "nest");
+  }
+
+  setCellsFoodDistance(stepsFromFood) {
+    this.setCellsDistance(stepsFromFood, "food");
+    this.fDuration = Cell.foodMaxD;
+    // Never set nest value
+    world.nest.foodDistance = -1;
   }
 
   setCellsDistance(steps, property) {
@@ -278,34 +292,6 @@ class Cell {
     }, this);
   }
 
-  setCellsNestDistance(stepsFromNest) {
-    this.setCellsDistance(stepsFromNest, "nest");
-
-    /*
-    this.setNestDistance(stepsFromNest);
-    world.adjPos[this.position.x][this.position.y].forEach((position) => {
-      // Increase cells in same x or y index by +1
-      if (position.x == this.position.x || position.y == this.position.y)
-        world.grid[this.position.x][this.position.y].setNestDistance(
-          stepsFromNest + 1
-        );
-      // Diagonal values, increase by +2
-      else
-        world.grid[this.position.x][this.position.y].setNestDistance(
-          stepsFromNest + 2
-        );
-    }, this);*/
-  }
-
-  /*
-  setNestDistance(steps) {
-    if (this.nestDistance > steps) this.nestDistance = steps;
-  }*/
-
-  setCellsFoodDistance(stepsFromFood) {
-    this.setCellsDistance(stepsFromFood, "food");
-  }
-
   setDistance(steps, property) {
     if (property == "nest") {
       if (this.nestDistance > steps) this.nestDistance = steps;
@@ -316,28 +302,6 @@ class Cell {
     }
   }
 
-  /*
-  addStepsRegion() {
-    world.adjPos[this.position.x][this.position.y].forEach((position) => {
-      const adjCell = world.grid[position.x][position.y];
-      if (adjCell.type != "Pheromone") adjCell.addStep();
-    });
-    this.addStep();
-  }
-
-  addStep(n = 1) {
-    // Reset decrease count
-    this.stepDuration = Cell.stepDuration;
-    this.steps += n;
-  }
-
-  decreaseSteps() {
-    this.steps--;
-    // Decrease should stop at 0, but
-    // performance is better when changed to that
-    // this.steps = Math.max(--this.steps, 0);
-  }
- */
   createObstacle(world) {
     if (
       !(
@@ -350,17 +314,12 @@ class Cell {
         this.position.y
       );
   }
-  /*
-  setStepsToClosestMin() {
-    let minSteps = this.steps;
-    world.adjPos[this.position.x][this.position.y].forEach((position) => {
-      const adjCellSteps = world.grid[position.x][position.y].steps;
-      if (adjCellSteps < minSteps) minSteps = adjCellSteps;
-    });
-    this.steps = minSteps;
-  }*/
 
-  update() {}
+  update() {
+    this.fDuration = Math.max(--this.fDuration, 0);
+    // Reset when duration passes
+    if (this.fDuration == 0) this.foodDistance = -1;
+  }
 
   // For debugging purposes
   paintSpecial() {
@@ -369,7 +328,8 @@ class Cell {
   }
 
   render() {
-    fill(48, 2, Math.min(this.nestDistance, 255));
+    if (this.fDuration == 0) fill(48, 2, Math.min(this.nestDistance, 255));
+    else fill(50, 100, 100);
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
 }
