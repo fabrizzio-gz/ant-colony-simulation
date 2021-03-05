@@ -494,8 +494,14 @@ class Ant extends Cell {
   reachedNest() {
     this.stepsFromNest = 0;
     this.stepsFromFood = -1;
+    this.resetPrevPosition();
     this.state = SCAVENGER_MODE;
     this.erase = false;
+  }
+
+  resetPrevPosition() {
+    this.prevPosition.x = world.nest.position.x;
+    this.prevPosition.y = world.nest.position.y;
   }
 
   // For debugging
