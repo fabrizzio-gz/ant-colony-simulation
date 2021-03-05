@@ -34,7 +34,8 @@ const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
 
 function setup() {
-  createCanvas(500, 500);
+  createCanvas(displayWidth, displayHeight);
+  // fullscreen();
   frameRate(10);
 
   // Set up buttons to control simulation
@@ -63,15 +64,15 @@ function setup() {
   stepButton.mousePressed(step);
 
   colorMode(HSB);
-  strokeWeight(1);
-  background(48, 2, 98);
-  stroke(0, 0, 80);
+  // background(48, 2, 98);
+  background(0, 0, 100);
+  strokeWeight(0);
 
   world = new World();
 
   // Set a trail of food (debugging only)
   // for (let i = 1; i < 20; i++) world.grid[25][25 + i].foodDistance = 100 - i;
-
+  world.renderBackground();
   world.render();
 }
 
@@ -250,12 +251,37 @@ class World {
     this.ants.forEach((ant) => ant.update());
   }
 
+  renderBorder() {
+    // Should be drawn only once but top borders don't show
+    // Temp solution
+    noFill();
+    strokeWeight(1);
+    stroke(0, 0, 0);
+    quad(
+      0,
+      0,
+      CELL_SIZE * GRID_W,
+      0,
+      CELL_SIZE * GRID_W,
+      CELL_SIZE * GRID_H,
+      0,
+      CELL_SIZE * GRID_H
+    );
+    strokeWeight(0);
+  }
+
+  renderBackground() {
+    fill(48, 2, 98);
+    square(0, 0, GRID_W * CELL_SIZE, GRID_H * CELL_SIZE);
+  }
+
   render() {
     for (let x = 0; x < this.gridX; x++)
       for (let y = 0; y < this.gridY; y++) this.grid[x][y].render();
     this.ants.forEach((ant) => ant.render());
     // Always render nest on top
     this.nest.render();
+    world.renderBorder();
   }
 }
 
@@ -547,11 +573,11 @@ class Ant extends Cell {
   }
 
   render() {
-    if (this.state === SCAVENGER_MODE || this.state == RANDOM_WALK_MODE) {
-      fill(100, 100, 70);
-    } else {
-      fill(20, 80, 80);
-    }
+    // if (this.state === SCAVENGER_MODE || this.state == RANDOM_WALK_MODE) {
+    //   fill(100, 100, 70);
+    // } else {
+    fill(20, 80, 80);
+    //  }
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
 }
