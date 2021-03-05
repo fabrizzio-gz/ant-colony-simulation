@@ -18,6 +18,7 @@ along with this software.  If not, see <https://www.gnu.org/licenses/>.
 // globals and settings
 let world;
 const CELL_SIZE = 5;
+const X_OFFSET = 250;
 const GRID_W = 50;
 const GRID_H = 50;
 const NEST_X = 25;
@@ -34,7 +35,7 @@ const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
 
 function setup() {
-  createCanvas(displayWidth, displayHeight);
+  createCanvas(CELL_SIZE * GRID_W, displayHeight);
   // fullscreen();
   frameRate(10);
 
@@ -47,13 +48,13 @@ function setup() {
   const ffButton = createButton("ff");
   const stepButton = createButton("step");
 
-  slowButton.position(20, GRID_H * CELL_SIZE + 20);
-  normalButton.position(100, GRID_H * CELL_SIZE + 20);
-  fastButton.position(200, GRID_H * CELL_SIZE + 20);
-  resetButton.position(20, GRID_H * CELL_SIZE + 50);
-  toggleButton.position(100, GRID_H * CELL_SIZE + 50);
-  ffButton.position(200, GRID_H * CELL_SIZE + 50);
-  stepButton.position(100, GRID_H * CELL_SIZE + 80);
+  slowButton.position(X_OFFSET + 20, GRID_H * CELL_SIZE + 20);
+  normalButton.position(X_OFFSET + 100, GRID_H * CELL_SIZE + 20);
+  fastButton.position(X_OFFSET + 200, GRID_H * CELL_SIZE + 20);
+  resetButton.position(X_OFFSET + 20, GRID_H * CELL_SIZE + 50);
+  toggleButton.position(X_OFFSET + 100, GRID_H * CELL_SIZE + 50);
+  ffButton.position(X_OFFSET + 200, GRID_H * CELL_SIZE + 50);
+  stepButton.position(X_OFFSET + 100, GRID_H * CELL_SIZE + 80);
 
   slowButton.mousePressed(slow);
   normalButton.mousePressed(normal);
