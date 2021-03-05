@@ -22,8 +22,9 @@ const GRID_W = 50;
 const GRID_H = 50;
 const NEST_X = 25;
 const NEST_Y = 25;
-const ANTS = 20;
+const ANTS = 1;
 const FOOD = 10;
+const FOOD_STOCK = 20;
 const ANT_MEM = 0;
 const OBSTACLE_COUNT = 0;
 const OBSTACLE_SIZE = 5;
@@ -462,6 +463,7 @@ class Ant extends Cell {
 
   reachedFood() {
     this.stepsFromFood = 0;
+    world.grid[this.position.x][this.position.y].eatFood();
     this.state = DELIVERY_MODE;
   }
 
@@ -718,9 +720,20 @@ class Food extends Cell {
     super(x, y);
     this.type = "Food";
     this.foodDistance = 0;
+    this.foodLeft = FOOD_STOCK;
   }
 
-  update() {}
+  eatFood() {
+    this.foodLeft--;
+  }
+
+  update() {
+    if (this.foodLeft <= 0)
+      world.grid[this.position.x][this.position.y] = new Cell(
+        this.position.x,
+        this.position.y
+      );
+  }
 
   render() {
     fill(20, 100, 100);
