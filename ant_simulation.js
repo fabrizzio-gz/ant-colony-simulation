@@ -22,7 +22,7 @@ const GRID_W = 50;
 const GRID_H = 50;
 const NEST_X = 25;
 const NEST_Y = 25;
-const ANTS = 10;
+const ANTS = 1;
 const FOOD = 50;
 const FOOD_STOCK = 10;
 const ANT_MEM = 0;
@@ -365,11 +365,11 @@ class Ant extends Cell {
     super(x, y);
     this.type = "Ant";
     this.state = SCAVENGER_MODE;
-    // this.prevPositions = [];
     // this.fuel = Ant.maxFuel;
     this.stepsFromNest = 0;
     this.stepsFromFood = -1;
     this.erase = false;
+    this.prevPosition = createVector(-1, -1);
     // this.penalty = 0;
   }
 
@@ -399,6 +399,7 @@ class Ant extends Cell {
       if (this.stepsFromFood >= 0) this.stepsFromFood++;
     }
 
+    this.saveOldPosition();
     this.updatePosition(newPos);
 
     if (this.state == SCAVENGER_MODE) this.updateNestDistance();
@@ -459,6 +460,11 @@ class Ant extends Cell {
 
   startEraseFoodTrail() {
     this.erase = true;
+  }
+
+  saveOldPosition() {
+    this.prevPosition.x = this.position.x;
+    this.prevPosition.y = this.position.y;
   }
 
   updatePosition(newPos) {
