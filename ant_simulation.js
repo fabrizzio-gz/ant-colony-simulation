@@ -260,7 +260,7 @@ class World {
 }
 
 class Cell {
-  static stepDuration = Math.max(GRID_W, GRID_H) * 10;
+  static stepDuration = Math.max(GRID_W, GRID_H) * 5;
   // Maximum food distance duration
   static foodMaxD = Math.max(GRID_W, GRID_H) * 1.5;
 
@@ -271,6 +271,7 @@ class Cell {
     this.nestDistance = Number.MAX_SAFE_INTEGER;
     this.foodDistance = -1;
     this.fDuration = 0; // food distance duration
+    this.steps = steps;
     // this.foodProximity = 0 TODO
     // this.stepDuration = Cell.stepDuration;
   }
@@ -312,6 +313,16 @@ class Cell {
     this.fDuration = 0;
   }
 
+  addStep(n = 1) {
+    // Reset decrease count
+    this.stepDuration = Cell.stepDuration;
+    this.steps += n;
+  }
+
+  decreaseSteps() {
+    this.steps--;
+  }
+
   createObstacle(world) {
     if (
       !(
@@ -326,9 +337,15 @@ class Cell {
   }
 
   update() {
+    this.updateSteps();
     this.fDuration = Math.max(--this.fDuration, 0);
     // Reset when duration passes
     if (this.fDuration == 0) this.foodDistance = -1;
+  }
+
+  updateSteps() {
+    this.stepDuration--;
+    if (this.stepDuration < 0) this.decreaseSteps();
   }
 
   // For debugging purposes
