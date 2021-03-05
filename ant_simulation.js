@@ -279,8 +279,8 @@ class Cell {
     this.setCellsDistance(stepsFromNest, "nest");
   }
 
-  setCellsFoodDistance(stepsFromFood) {
-    this.setCellsDistance(stepsFromFood, "food");
+  setFoodDistance(stepsFromFood) {
+    this.setDistance(stepsFromFood, "food");
     this.fDuration = Cell.foodMaxD;
     // Never set nest value
     world.nest.foodDistance = -1;
@@ -404,7 +404,7 @@ class Ant extends Cell {
     if (this.state == SCAVENGER_MODE) this.updateNestDistance();
     // DELIVERY_MODE
     else if (this.stepsFromFood != -1)
-      getCell(this.position).setCellsFoodDistance(this.stepsFromFood);
+      getCell(this.position).setFoodDistance(this.stepsFromFood);
     // TODO update prevPositions
   }
 
