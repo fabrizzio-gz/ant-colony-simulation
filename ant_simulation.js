@@ -23,7 +23,7 @@ const GRID_H = 50;
 const NEST_X = 25;
 const NEST_Y = 25;
 const ANTS = 10;
-const FOOD = 20;
+const FOOD = 50;
 const FOOD_STOCK = 10;
 const ANT_MEM = 0;
 const OBSTACLE_COUNT = 0;
@@ -217,10 +217,13 @@ class World {
       for (let y = 0; y < this.gridY; y++) {
         let distance = "";
         for (let x = 0; x < this.gridX; x++)
-          distance +=
-            this.grid[x][y].nestDistance == Number.MAX_SAFE_INTEGER
-              ? "-"
-              : this.grid[x][y].nestDistance;
+          if (x == this.nest.position.x && y == this.nest.position.y)
+            distance += "x|";
+          else
+            distance +=
+              this.grid[x][y].nestDistance == Number.MAX_SAFE_INTEGER
+                ? "-|"
+                : this.grid[x][y].nestDistance + "|";
         console.log(distance);
       }
     } else {
@@ -228,10 +231,13 @@ class World {
       for (let y = 0; y < this.gridY; y++) {
         let distance = "";
         for (let x = 0; x < this.gridX; x++)
-          distance +=
-            this.grid[x][y].foodDistance == -1
-              ? "-"
-              : this.grid[x][y].foodDistance;
+          if (x == this.nest.position.x && y == this.nest.position.y)
+            distance += "x|";
+          else
+            distance +=
+              this.grid[x][y].foodDistance == -1
+                ? "-|"
+                : this.grid[x][y].foodDistance + "|";
         console.log(distance);
       }
     }
@@ -302,6 +308,10 @@ class Cell {
     }
   }
 
+  eraseFoodTrail() {
+    this.fDuration = 0;
+  }
+
   createObstacle(world) {
     if (
       !(
@@ -359,6 +369,7 @@ class Ant extends Cell {
     // this.fuel = Ant.maxFuel;
     this.stepsFromNest = 0;
     this.stepsFromFood = -1;
+    this.erase = false;
     // this.penalty = 0;
   }
 
@@ -378,7 +389,10 @@ class Ant extends Cell {
       if (!(newPos = this.getMinDistanceFood())) newPos = this.randomWalk();
     }
     // DELIVERY_MODE
-    else newPos = this.getMinNestDistanceCell();
+    else {
+      newPos = this.getMinNestDistanceCell();
+      if (this.erase) getCell(this.position).eraseFoodTrail();
+    }
 
     if (this.isDiagonal(newPos)) {
       this.stepsFromNest++;
@@ -389,7 +403,8 @@ class Ant extends Cell {
 
     if (this.state == SCAVENGER_MODE) this.updateNestDistance();
     // DELIVERY_MODE
-    else getCell(this.position).setCellsFoodDistance(this.stepsFromFood);
+    else if (this.stepsFromFood != -1)
+      getCell(this.position).setCellsFoodDistance(this.stepsFromFood);
     // TODO update prevPositions
   }
 
@@ -442,6 +457,10 @@ class Ant extends Cell {
     return random(world.adjPos[this.position.x][this.position.y]);
   }
 
+  startEraseFoodTrail() {
+    this.erase = true;
+  }
+
   updatePosition(newPos) {
     this.position.x = newPos.x;
     this.position.y = newPos.y;
@@ -462,6 +481,7 @@ class Ant extends Cell {
   reachedFood() {
     this.stepsFromFood = 0;
     getCell(this.position).eatFood();
+    if (getCell(this.position).foodLeft <= 0) this.startEraseFoodTrail();
     this.state = DELIVERY_MODE;
   }
 
@@ -469,6 +489,7 @@ class Ant extends Cell {
     this.stepsFromNest = 0;
     this.stepsFromFood = -1;
     this.state = SCAVENGER_MODE;
+    this.erase = false;
   }
 
   // For debugging
