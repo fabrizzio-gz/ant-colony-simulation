@@ -1,23 +1,19 @@
-/* 
+/*
 This is an attempt to simulate ant colony optimization using p5js.
-Copyright (C) 2021 must-compute
-<admin@must-compute.com>
-Fabrizzio G. 
-<onestepcode.web@gmail.com>
+Copyright (C) 2021 must-compute <admin@must-compute.com>
+Copyright (C) 2021 Fabrizzio G. <onestepcode.web@gmail.com>: Forked initial implementation from must-compute.
 
-This softwareis free software: you can redistribute it and/or modify
+This software is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
-
 This software is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Affero General Public License for more details.
-
 You should have received a copy of the GNU Affero General Public License
 along with this software.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 // globals and settings
 let world;
