@@ -386,7 +386,9 @@ class Ant extends Cell {
     let newPos;
     if (this.state == SCAVENGER_MODE) {
       // Try getting food trail, else move randomly
+      // If initial position is the nest, then move randomly
       if (
+        this.isCloseToNest() ||
         !(newPos = this.getMinDistanceFood()) ||
         isSamePosition(newPos, this.prevPosition)
       )
@@ -461,6 +463,10 @@ class Ant extends Cell {
 
   randomWalk() {
     return random(world.adjPos[this.position.x][this.position.y]);
+  }
+
+  isCloseToNest() {
+    return isSamePosition(this.position, world.nest.position);
   }
 
   startEraseFoodTrail() {
