@@ -37,39 +37,9 @@ const SCAVENGER_MODE = "Scavenger";
 function setup() {
   const canvas = createCanvas(GRID_W * CELL_SIZE, GRID_H * CELL_SIZE);
   canvas.parent("canvas-container");
+  document.getElementById("canvas-container").style.height =
+    GRID_H * CELL_SIZE + "px";
   frameRate(10);
-
-  // Set up buttons to control simulation
-  // const slowButton = createButton("slow");
-  /*
-  const slowButton = document.createElement("Button");
-  slowButton.textContent = "slow";
-  document.body.appendChild(slowButton);
-
-  
-  const normalButton = createButton("normal");
-  const fastButton = createButton("fast");
-  const resetButton = createButton("reset");
-  const toggleButton = createButton("toggle");
-  const ffButton = createButton("ff");
-  const stepButton = createButton("step");
-
-  
-  // slowButton.position(X_OFFSET + 20, GRID_H * CELL_SIZE + 20);
-  normalButton.position(X_OFFSET + 100, GRID_H * CELL_SIZE + 20);
-  fastButton.position(X_OFFSET + 200, GRID_H * CELL_SIZE + 20);
-  resetButton.position(X_OFFSET + 20, GRID_H * CELL_SIZE + 50);
-  toggleButton.position(X_OFFSET + 100, GRID_H * CELL_SIZE + 50);
-  ffButton.position(X_OFFSET + 200, GRID_H * CELL_SIZE + 50);
-  stepButton.position(X_OFFSET + 100, GRID_H * CELL_SIZE + 80);
-
-  // slowButton.mousePressed(slow);
-  normalButton.mousePressed(normal);
-  fastButton.mousePressed(fast);
-  resetButton.mousePressed(reset);
-  toggleButton.mousePressed(toggle);
-  ffButton.mousePressed(ff);
-  stepButton.mousePressed(step);*/
 
   colorMode(HSB);
   // background(48, 2, 98);
@@ -77,10 +47,6 @@ function setup() {
   strokeWeight(0);
 
   world = createWorld();
-
-  // Set a trail of food (debugging only)
-  // for (let i = 1; i < 20; i++) world.grid[25][25 + i].foodDistance = 100 - i;
-  world.renderBackground();
   world.render();
 }
 
@@ -203,11 +169,6 @@ class World {
   }
 
   initFood(food) {
-    /*
-    for (let x = this.gridX - 1; x >= this.gridX - food; x--)
-      for (let y = this.gridY - 1; y >= this.gridY - food; y--)
-        this.grid[x][y] = new Food(x, y);
-    */
     // Create food at random positions
     while (food--) {
       const x = Math.floor(Math.random() * this.gridX);
@@ -259,37 +220,12 @@ class World {
     this.ants.forEach((ant) => ant.update());
   }
 
-  renderBorder() {
-    // Should be drawn only once but top borders don't show
-    // Temp solution
-    noFill();
-    strokeWeight(1);
-    stroke(0, 0, 0);
-    quad(
-      0,
-      0,
-      CELL_SIZE * GRID_W,
-      0,
-      CELL_SIZE * GRID_W,
-      CELL_SIZE * GRID_H,
-      0,
-      CELL_SIZE * GRID_H
-    );
-    strokeWeight(0);
-  }
-
-  renderBackground() {
-    fill(48, 2, 98);
-    square(0, 0, GRID_W * CELL_SIZE, GRID_H * CELL_SIZE);
-  }
-
   render() {
     for (let x = 0; x < this.gridX; x++)
       for (let y = 0; y < this.gridY; y++) this.grid[x][y].render();
     this.ants.forEach((ant) => ant.render());
     // Always render nest on top
     this.nest.render();
-    world.renderBorder();
   }
 }
 
@@ -307,7 +243,6 @@ class Cell {
     this.fDuration = 0; // food distance duration
     this.steps = steps;
     this.stepDuration = Cell.stepDuration;
-    // this.foodProximity = 0 TODO
   }
 
   setCellsNestDistance(stepsFromNest) {
