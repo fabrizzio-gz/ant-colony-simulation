@@ -338,12 +338,25 @@ class Cell {
   }
 }
 
-class Obstacle extends Cell {
+class Obstacle {
   constructor(x, y) {
-    super(x, y);
+    this.position = createVector(x, y);
+    this.size = CELL_SIZE;
     this.type = "Obstacle";
   }
 
+  createObstacle(world) {
+    if (
+      !(
+        this.position.x == world.nest.position.x &&
+        this.position.y == world.nest.position.y
+      )
+    )
+      world.grid[this.position.x][this.position.y] = new Obstacle(
+        this.position.x,
+        this.position.y
+      );
+  }
   update() {}
 
   render() {
