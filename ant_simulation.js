@@ -35,11 +35,18 @@ const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
 
 function setup() {
-  createCanvas(GRID_W * CELL_SIZE, 500);
+  const canvas = createCanvas(GRID_W * CELL_SIZE, GRID_H * CELL_SIZE);
+  canvas.parent("canvas-container");
   frameRate(10);
 
   // Set up buttons to control simulation
-  const slowButton = createButton("slow");
+  // const slowButton = createButton("slow");
+  /*
+  const slowButton = document.createElement("Button");
+  slowButton.textContent = "slow";
+  document.body.appendChild(slowButton);
+
+  
   const normalButton = createButton("normal");
   const fastButton = createButton("fast");
   const resetButton = createButton("reset");
@@ -47,7 +54,8 @@ function setup() {
   const ffButton = createButton("ff");
   const stepButton = createButton("step");
 
-  slowButton.position(X_OFFSET + 20, GRID_H * CELL_SIZE + 20);
+  
+  // slowButton.position(X_OFFSET + 20, GRID_H * CELL_SIZE + 20);
   normalButton.position(X_OFFSET + 100, GRID_H * CELL_SIZE + 20);
   fastButton.position(X_OFFSET + 200, GRID_H * CELL_SIZE + 20);
   resetButton.position(X_OFFSET + 20, GRID_H * CELL_SIZE + 50);
@@ -55,13 +63,13 @@ function setup() {
   ffButton.position(X_OFFSET + 200, GRID_H * CELL_SIZE + 50);
   stepButton.position(X_OFFSET + 100, GRID_H * CELL_SIZE + 80);
 
-  slowButton.mousePressed(slow);
+  // slowButton.mousePressed(slow);
   normalButton.mousePressed(normal);
   fastButton.mousePressed(fast);
   resetButton.mousePressed(reset);
   toggleButton.mousePressed(toggle);
   ffButton.mousePressed(ff);
-  stepButton.mousePressed(step);
+  stepButton.mousePressed(step);*/
 
   colorMode(HSB);
   // background(48, 2, 98);
