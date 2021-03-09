@@ -26,6 +26,7 @@
 }
 
 #canvas-container {
+  justify-self: center;
   grid-area: canvas;
   border: black solid 1px;
 }
