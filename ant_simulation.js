@@ -264,103 +264,6 @@ class Obstacle {
   }
 }
 
-class Cell extends Obstacle {
-  static stepDuration = Math.max(GRID_W, GRID_H) * 10;
-  // Maximum food distance duration
-  static foodMaxD = Math.max(GRID_W, GRID_H) * 1.5;
-
-  constructor(x, y, steps = 0) {
-    super(x, y);
-    //this.position = createVector(x, y);
-    // this.size = CELL_SIZE;
-    this.type = "Cell";
-    this.nestDistance = Number.MAX_SAFE_INTEGER;
-    this.foodDistance = -1;
-    this.fDuration = 0; // food distance duration
-    this.steps = steps;
-    this.stepDuration = Cell.stepDuration;
-  }
-
-  setCellsNestDistance(stepsFromNest) {
-    this.setCellsDistance(stepsFromNest, "nest");
-  }
-
-  setFoodDistance(stepsFromFood) {
-    this.setDistance(stepsFromFood, "food");
-    this.fDuration = Cell.foodMaxD;
-    // Never set nest value
-    world.nest.foodDistance = -1;
-  }
-
-  setCellsDistance(steps, property) {
-    this.setDistance(steps, property);
-
-    world.adjPos[this.position.x][this.position.y].forEach((position) => {
-      // Increase cells in same x or y index by +1
-      if (position.x == this.position.x || position.y == this.position.y)
-        world.grid[position.x][position.y].setDistance(steps + 1, property);
-      // Diagonal values, increase by +2
-      else world.grid[position.x][position.y].setDistance(steps + 2, property);
-    }, this);
-  }
-
-  setDistance(steps, property) {
-    if (property == "nest") {
-      if (this.nestDistance > steps) this.nestDistance = steps;
-    } else {
-      // property == "food"
-      if (this.foodDistance == -1) this.foodDistance = steps;
-      else if (this.foodDistance > steps) this.foodDistance = steps;
-    }
-  }
-
-  eraseFoodTrail() {
-    this.fDuration = 0;
-  }
-
-  stepOnCell() {
-    this.addStep();
-  }
-
-  addStep(n = 1) {
-    // Reset decrease count
-    this.stepDuration = Cell.stepDuration;
-    this.steps += n;
-  }
-
-  decreaseSteps() {
-    this.steps--;
-    // Decrease should stop at 0, but
-    // performance is better when changed to that
-    // this.steps = Math.max(--this.steps, 0);
-  }
-
-  update() {
-    this.updateSteps();
-    this.fDuration = Math.max(--this.fDuration, 0);
-    // Reset when duration passes
-    if (this.fDuration == 0) this.foodDistance = -1;
-  }
-
-  updateSteps() {
-    this.stepDuration--;
-    if (this.stepDuration < 0) this.decreaseSteps();
-  }
-
-  // For debugging purposes
-  paintSpecial() {
-    fill(0);
-    square(this.position.x * this.size, this.position.y * this.size, this.size);
-  }
-
-  render() {
-    if (this.fDuration == 0) fill(48, 2, Math.max(98 - this.steps * 2, 20));
-    // Make darker with more steps
-    else fill(50, 100, 100); // Show as pheromone (food trail)
-    square(this.position.x * this.size, this.position.y * this.size, this.size);
-  }
-}
-
 class Ant extends Obstacle {
   static maxFuel = Math.max(GRID_W, GRID_H) * 1.5;
 
@@ -546,6 +449,103 @@ class Ant extends Obstacle {
   }
 }
 
+class Cell extends Obstacle {
+  static stepDuration = Math.max(GRID_W, GRID_H) * 10;
+  // Maximum food distance duration
+  static foodMaxD = Math.max(GRID_W, GRID_H) * 1.5;
+
+  constructor(x, y, steps = 0) {
+    super(x, y);
+    //this.position = createVector(x, y);
+    // this.size = CELL_SIZE;
+    this.type = "Cell";
+    this.nestDistance = Number.MAX_SAFE_INTEGER;
+    this.foodDistance = -1;
+    this.fDuration = 0; // food distance duration
+    this.steps = steps;
+    this.stepDuration = Cell.stepDuration;
+  }
+
+  setCellsNestDistance(stepsFromNest) {
+    this.setCellsDistance(stepsFromNest, "nest");
+  }
+
+  setFoodDistance(stepsFromFood) {
+    this.setDistance(stepsFromFood, "food");
+    this.fDuration = Cell.foodMaxD;
+    // Never set nest value
+    world.nest.foodDistance = -1;
+  }
+
+  setCellsDistance(steps, property) {
+    this.setDistance(steps, property);
+
+    world.adjPos[this.position.x][this.position.y].forEach((position) => {
+      // Increase cells in same x or y index by +1
+      if (position.x == this.position.x || position.y == this.position.y)
+        world.grid[position.x][position.y].setDistance(steps + 1, property);
+      // Diagonal values, increase by +2
+      else world.grid[position.x][position.y].setDistance(steps + 2, property);
+    }, this);
+  }
+
+  setDistance(steps, property) {
+    if (property == "nest") {
+      if (this.nestDistance > steps) this.nestDistance = steps;
+    } else {
+      // property == "food"
+      if (this.foodDistance == -1) this.foodDistance = steps;
+      else if (this.foodDistance > steps) this.foodDistance = steps;
+    }
+  }
+
+  eraseFoodTrail() {
+    this.fDuration = 0;
+  }
+
+  stepOnCell() {
+    this.addStep();
+  }
+
+  addStep(n = 1) {
+    // Reset decrease count
+    this.stepDuration = Cell.stepDuration;
+    this.steps += n;
+  }
+
+  decreaseSteps() {
+    this.steps--;
+    // Decrease should stop at 0, but
+    // performance is better when changed to that
+    // this.steps = Math.max(--this.steps, 0);
+  }
+
+  update() {
+    this.updateSteps();
+    this.fDuration = Math.max(--this.fDuration, 0);
+    // Reset when duration passes
+    if (this.fDuration == 0) this.foodDistance = -1;
+  }
+
+  updateSteps() {
+    this.stepDuration--;
+    if (this.stepDuration < 0) this.decreaseSteps();
+  }
+
+  // For debugging purposes
+  paintSpecial() {
+    fill(0);
+    square(this.position.x * this.size, this.position.y * this.size, this.size);
+  }
+
+  render() {
+    if (this.fDuration == 0) fill(48, 2, Math.max(98 - this.steps * 2, 20));
+    // Make darker with more steps
+    else fill(50, 100, 100); // Show as pheromone (food trail)
+    square(this.position.x * this.size, this.position.y * this.size, this.size);
+  }
+}
+
 class Food extends Cell {
   constructor(x, y) {
     super(x, y);
@@ -591,34 +591,6 @@ class Nest extends Cell {
 
   render() {
     fill(100, 100, 100);
-    square(this.position.x * this.size, this.position.y * this.size, this.size);
-  }
-}
-
-class Pheromone extends Cell {
-  static maxFreshness = Math.max(GRID_H, GRID_W) * 2;
-
-  constructor(x, y, steps) {
-    super(x, y, steps);
-    this.type = "Pheromone";
-    this.freshness = Pheromone.maxFreshness;
-  }
-
-  update() {
-    // If the pheromone is depleted, clear this world.grid cell.
-    if (this.freshness === 0) {
-      world.grid[this.position.x][this.position.y] = new Cell(
-        this.position.x,
-        this.position.y,
-        this.steps
-      );
-    } else {
-      this.freshness -= 1;
-    }
-  }
-
-  render() {
-    fill(50, 100, 100);
     square(this.position.x * this.size, this.position.y * this.size, this.size);
   }
 }
