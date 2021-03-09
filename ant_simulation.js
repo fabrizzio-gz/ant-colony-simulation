@@ -298,8 +298,8 @@ class Cell {
     this.foodDistance = -1;
     this.fDuration = 0; // food distance duration
     this.steps = steps;
+    this.stepDuration = Cell.stepDuration;
     // this.foodProximity = 0 TODO
-    // this.stepDuration = Cell.stepDuration;
   }
 
   setCellsNestDistance(stepsFromNest) {
@@ -378,7 +378,6 @@ class Cell {
 
   updateSteps() {
     this.stepDuration--;
-    if (Number.isNaN(this.stepDuration)) debugger;
     if (this.stepDuration < 0) this.decreaseSteps();
   }
 
