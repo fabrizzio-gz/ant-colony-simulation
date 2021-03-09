@@ -229,14 +229,42 @@ class World {
   }
 }
 
-class Cell {
+class Obstacle {
+  constructor(x, y) {
+    this.position = createVector(x, y);
+    this.size = CELL_SIZE;
+    this.type = "Obstacle";
+  }
+
+  createObstacle(world) {
+    if (
+      !(
+        this.position.x == world.nest.position.x &&
+        this.position.y == world.nest.position.y
+      )
+    )
+      world.grid[this.position.x][this.position.y] = new Obstacle(
+        this.position.x,
+        this.position.y
+      );
+  }
+  update() {}
+
+  render() {
+    fill(240, 100, 100);
+    square(this.position.x * this.size, this.position.y * this.size, this.size);
+  }
+}
+
+class Cell extends Obstacle {
   static stepDuration = Math.max(GRID_W, GRID_H) * 10;
   // Maximum food distance duration
   static foodMaxD = Math.max(GRID_W, GRID_H) * 1.5;
 
   constructor(x, y, steps = 0) {
-    this.position = createVector(x, y);
-    this.size = CELL_SIZE;
+    super(x, y);
+    //this.position = createVector(x, y);
+    // this.size = CELL_SIZE;
     this.type = "Cell";
     this.nestDistance = Number.MAX_SAFE_INTEGER;
     this.foodDistance = -1;
@@ -338,38 +366,13 @@ class Cell {
   }
 }
 
-class Obstacle {
-  constructor(x, y) {
-    this.position = createVector(x, y);
-    this.size = CELL_SIZE;
-    this.type = "Obstacle";
-  }
-
-  createObstacle(world) {
-    if (
-      !(
-        this.position.x == world.nest.position.x &&
-        this.position.y == world.nest.position.y
-      )
-    )
-      world.grid[this.position.x][this.position.y] = new Obstacle(
-        this.position.x,
-        this.position.y
-      );
-  }
-  update() {}
-
-  render() {
-    fill(240, 100, 100);
-    square(this.position.x * this.size, this.position.y * this.size, this.size);
-  }
-}
-
-class Ant extends Cell {
+class Ant extends Obstacle {
   static maxFuel = Math.max(GRID_W, GRID_H) * 1.5;
 
   constructor(x, y) {
     super(x, y);
+    //this.position = createVector(x, y);
+    // this.size = CELL_SIZE;
     this.type = "Ant";
     this.state = SCAVENGER_MODE;
     // this.fuel = Ant.maxFuel;
