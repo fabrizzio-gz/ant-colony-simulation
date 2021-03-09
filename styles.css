@@ -1,14 +1,71 @@
-.column {
-  display: flex;
-  flex-direction: column;
+:root {
+  --nest-color: #55ff00;
+  --ants-color: #cc5f29;
+  --food-color: #ff5500;
+  --obstacles-color: #0000ff;
+}
+
+.grid-container {
+  display: grid;
+  gap: 10px;
+  align-items: start;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-areas:
+    ". . canvas legend ."
+    ". . buttons . .";
   align-items: center;
 }
 
 #canvas-container {
+  grid-area: canvas;
   border: black solid 1px;
 }
 
+#legend {
+  grid-area: legend;
+  align-self: start;
+  width: 100px;
+  border: solid black 1px;
+  padding: 0.75rem;
+  font-size: 0.75rem;
+}
+
+#legend h2 {
+  margin-top: 0;
+  font-size: 1rem;
+}
+
+#legend ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.color-box {
+  display: inline-block;
+  height: 1rem;
+  width: 1rem;
+  background: black;
+}
+
+.color-box.nest {
+  background: var(--nest-color);
+}
+
+.color-box.ants {
+  background: var(--ants-color);
+}
+
+.color-box.food {
+  background: var(--food-color);
+}
+
+.color-box.obstacles {
+  background: var(--obstacles-color);
+}
+
 .button-container {
+  grid-area: buttons;
   margin-top: 10px;
   display: grid;
   gap: 10px;
