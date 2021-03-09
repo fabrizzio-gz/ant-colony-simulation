@@ -68,7 +68,7 @@ function setup() {
   background(0, 0, 100);
   strokeWeight(0);
 
-  world = new World();
+  world = createWorld();
 
   // Set a trail of food (debugging only)
   // for (let i = 1; i < 20; i++) world.grid[25][25 + i].foodDistance = 100 - i;
@@ -524,7 +524,9 @@ class Ant extends Cell {
   }
 
   randomWalk() {
-    return random(world.adjPos[this.position.x][this.position.y]);
+    const newPos = random(world.adjPos[this.position.x][this.position.y]);
+    if (newPos === undefined) debugger;
+    return newPos;
   }
 
   isCloseToNest() {
@@ -703,7 +705,20 @@ const toggle = () => {
 };
 
 const reset = () => {
-  world = new World();
+  world = createWorld();
+};
+
+const createWorld = () => {
+  let newWorld;
+  // Create new world and check the nest isn't trapped
+  // between obstacles. Else recreate world
+  do newWorld = new World();
+  while (
+    newWorld.adjPos[newWorld.nest.position.x][newWorld.nest.position.y]
+      .length == 0
+  );
+
+  return newWorld;
 };
 
 const step = () => {
