@@ -6,14 +6,23 @@
 }
 
 .grid-container {
+  margin-top: 2rem;
   display: grid;
   gap: 10px;
   align-items: start;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   grid-template-areas:
-    ". . canvas legend ."
-    ". . buttons . .";
-  align-items: center;
+    ". desc canvas legend ."
+    ". desc buttons . .";
+  align-items: start;
+}
+
+#description {
+  grid-area: desc;
+}
+
+#description h1 {
+  margin-top: 0;
 }
 
 #canvas-container {
@@ -23,7 +32,6 @@
 
 #legend {
   grid-area: legend;
-  align-self: start;
   width: 100px;
   border: solid black 1px;
   padding: 0.75rem;

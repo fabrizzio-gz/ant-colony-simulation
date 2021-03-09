@@ -5,7 +5,59 @@
     <!-- <script src="p5.js" type="text/javascript"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/p5@1.2.0/lib/p5.js"></script>
     <script src="ant_simulation.js" type="text/javascript"></script>
+    <script src="classes.js" type="text/javascript"></script>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body></body>
+  <body>
+    <div class="grid-container">
+      <div id="description">
+        <h1>Ant colony simulation</h1>
+
+        <p>
+          Ants scavenge for food resources. Once they find it, they return back
+          to the nest following the best path they were able to find.
+        </p>
+
+        <p>Cells become darker as ants step on them.</p>
+
+        <p>
+          <a href="https://github.com/fabrizzio-gz/ant_colony_simulation"
+            >Source code</a
+          >
+        </p>
+      </div>
+
+      <div id="canvas-container"></div>
+      <div id="legend">
+        <h2>Legend</h2>
+        <ul>
+          <li>
+            <div class="color-box nest"></div>
+            Nest
+          </li>
+          <li>
+            <div class="color-box ants"></div>
+            Ants
+          </li>
+          <li>
+            <div class="color-box food"></div>
+            Food
+          </li>
+          <li>
+            <div class="color-box obstacles"></div>
+            Obstacles
+          </li>
+        </ul>
+      </div>
+      <div class="button-container">
+        <button id="slow-button" onclick="slow()">slow</button>
+        <button id="normal-button" onclick="normal()">normal</button>
+        <button id="fast-button" onclick="fast()">fast</button>
+        <button id="reset-button" onclick="reset()">reset</button>
+        <button id="toggle-button" onclick="toggle()">toggle</button>
+        <button id="ff-button" onclick="ff()">ff</button>
+        <button id="step-button" onclick="step()">step</button>
+      </div>
+    </div>
+  </body>
 </html>
