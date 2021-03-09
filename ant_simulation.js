@@ -34,8 +34,11 @@ const SCAVENGER_MODE = "Scavenger";
 function setup() {
   const canvas = createCanvas(GRID_W * CELL_SIZE, GRID_H * CELL_SIZE);
   canvas.parent("canvas-container");
+  document.getElementById("canvas-container").style.width =
+    GRID_W * CELL_SIZE + "px";
   document.getElementById("canvas-container").style.height =
     GRID_H * CELL_SIZE + "px";
+
   frameRate(10);
 
   colorMode(HSB);
