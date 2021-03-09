@@ -18,7 +18,7 @@ along with this software.  If not, see <https://www.gnu.org/licenses/>.
 
 // globals and settings
 let world;
-const CELL_SIZE = 5;
+const CELL_SIZE = 9;
 const GRID_W = 50;
 const GRID_H = 50;
 const NEST_X = 25;
