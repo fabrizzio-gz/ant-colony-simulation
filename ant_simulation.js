@@ -451,6 +451,8 @@ class Ant extends Cell {
       )
         do newPos = this.randomWalk();
         while (
+          // Get a random new position that is not the
+          // previous one. Unless that's the only one
           getAdjCellPos(this.position).length != 1 &&
           isSamePosition(newPos, this.prevPosition)
         );
