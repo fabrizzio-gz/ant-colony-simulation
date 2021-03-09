@@ -82,6 +82,7 @@ class World {
     // after adding obstacles
     this.adjPos = this.getAdjPositions();
     this.ants = this.initAnts(ants);
+    this.renderAllOnce();
   }
 
   initGrid() {
@@ -220,9 +221,16 @@ class World {
     this.ants.forEach((ant) => ant.update());
   }
 
-  render() {
+  renderAllOnce() {
     for (let x = 0; x < this.gridX; x++)
       for (let y = 0; y < this.gridY; y++) this.grid[x][y].render();
+  }
+
+  render() {
+    // Obstacles aren't rendered
+    for (let x = 0; x < this.gridX; x++)
+      for (let y = 0; y < this.gridY; y++)
+        if (this.grid[x][y].type != "Obstacle") this.grid[x][y].render();
     this.ants.forEach((ant) => ant.render());
     // Always render nest on top
     this.nest.render();
@@ -325,19 +333,6 @@ class Cell extends Obstacle {
     // Decrease should stop at 0, but
     // performance is better when changed to that
     // this.steps = Math.max(--this.steps, 0);
-  }
-
-  createObstacle(world) {
-    if (
-      !(
-        this.position.x == world.nest.position.x &&
-        this.position.y == world.nest.position.y
-      )
-    )
-      world.grid[this.position.x][this.position.y] = new Obstacle(
-        this.position.x,
-        this.position.y
-      );
   }
 
   update() {
