@@ -19,7 +19,6 @@ along with this software.  If not, see <https://www.gnu.org/licenses/>.
 // globals and settings
 let world;
 const CELL_SIZE = 5;
-const X_OFFSET = 250;
 const GRID_W = 50;
 const GRID_H = 50;
 const NEST_X = 25;
@@ -27,11 +26,8 @@ const NEST_Y = 25;
 const ANTS = 10;
 const FOOD = 50;
 const FOOD_STOCK = 10;
-const ANT_MEM = 0;
 const OBSTACLE_COUNT = 10;
 const OBSTACLE_SIZE = 5;
-const PHEROMONE_CELLS_LIMIT = 0;
-const RANDOM_WALK_MODE = "Random";
 const DELIVERY_MODE = "Delivery";
 const SCAVENGER_MODE = "Scavenger";
 
@@ -56,7 +52,7 @@ function draw() {
   world.render();
 }
 
-// Button functions
+// Button onclick functions
 // fast-forward
 const ff = () => {
   for (let i = 0; i < 1000; i++) world.update();
