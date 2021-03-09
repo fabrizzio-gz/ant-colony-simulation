@@ -524,9 +524,7 @@ class Ant extends Cell {
   }
 
   randomWalk() {
-    const newPos = random(world.adjPos[this.position.x][this.position.y]);
-    if (newPos === undefined) debugger;
-    return newPos;
+    return random(world.adjPos[this.position.x][this.position.y]);
   }
 
   isCloseToNest() {
