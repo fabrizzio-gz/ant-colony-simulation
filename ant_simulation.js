@@ -451,7 +451,10 @@ class Ant extends Cell {
         isSamePosition(newPos, this.prevPosition)
       )
         do newPos = this.randomWalk();
-        while (isSamePosition(newPos, this.prevPosition));
+        while (
+          getAdjCellPos(this.position).length != 1 &&
+          isSamePosition(newPos, this.prevPosition)
+        );
     }
     // DELIVERY_MODE
     else {
@@ -671,6 +674,8 @@ function draw() {
 }
 
 const getCell = (position) => world.grid[position.x][position.y];
+
+const getAdjCellPos = (position) => world.adjPos[position.x][position.y];
 
 const isSamePosition = (pos1, pos2) => pos1.x == pos2.x && pos1.y == pos2.y;
 
