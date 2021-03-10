@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "allowJs": true,
+        "checkJs": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": false,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "outDir": "./built",
+        "allowSyntheticDefaultImports": true
+    },
+    "include": [
+        "./src/**/*"
+    ]
+}
+
