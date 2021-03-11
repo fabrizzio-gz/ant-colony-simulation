@@ -1,21 +1,21 @@
 import P5 from "p5";
 import "p5/global";
 
-import {
-  world,
-  CELL_SIZE,
-  GRID_W,
-  GRID_H,
-  NEST_X,
-  NEST_Y,
-  ANTS,
-  FOOD,
-  FOOD_STOCK,
-  OBSTACLE_COUNT,
-  OBSTACLE_SIZE,
-  DELIVERY_MODE,
-  SCAVENGER_MODE,
-} from "./ant_simulation";
+declare global {
+  let world: World;
+  const CELL_SIZE: number;
+  const GRID_W: number;
+  const GRID_H: number;
+  const NEST_X: number;
+  const NEST_Y: number;
+  const ANTS: number;
+  const FOOD: number;
+  const FOOD_STOCK: number;
+  const OBSTACLE_COUNT: number;
+  const OBSTACLE_SIZE: number;
+  const DELIVERY_MODE: string;
+  const SCAVENGER_MODE: string;
+}
 
 export class World {
   gridX: number;

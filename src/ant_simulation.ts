@@ -19,19 +19,19 @@ import "p5/global";
 declare function isLooping(): boolean;
 import { World } from "./classes";
 
-export let world: World;
-export const CELL_SIZE: number = 9;
-export const GRID_W: number = 50;
-export const GRID_H: number = 50;
-export const NEST_X: number = 25;
-export const NEST_Y: number = 25;
-export const ANTS: number = 10;
-export const FOOD: number = 50;
-export const FOOD_STOCK: number = 10;
-export const OBSTACLE_COUNT: number = 10;
-export const OBSTACLE_SIZE: number = 5;
-export const DELIVERY_MODE: string = "Delivery";
-export const SCAVENGER_MODE: string = "Scavenger";
+let world: World;
+const CELL_SIZE: number = 9;
+const GRID_W: number = 50;
+const GRID_H: number = 50;
+const NEST_X: number = 25;
+const NEST_Y: number = 25;
+const ANTS: number = 10;
+const FOOD: number = 50;
+const FOOD_STOCK: number = 10;
+const OBSTACLE_COUNT: number = 10;
+const OBSTACLE_SIZE: number = 5;
+const DELIVERY_MODE: string = "Delivery";
+const SCAVENGER_MODE: string = "Scavenger";
 
 function setup() {
   const canvas = createCanvas(GRID_W * CELL_SIZE, GRID_H * CELL_SIZE);
