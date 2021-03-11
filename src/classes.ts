@@ -1,5 +1,5 @@
 import P5 from "p5";
-import "p5/global";
+/// <reference types="p5/global" />
 
 declare global {
   let world: World;

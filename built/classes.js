@@ -1,4 +1,3 @@
-import "p5/global";
 class World {
     constructor(initValues = {
         gridX: GRID_W,
@@ -473,3 +472,4 @@ const getCell = (position) => world.grid[position.x][position.y];
 const getFoodCell = (position) => world.grid[position.x][position.y];
 const getAdjCellPos = (position) => world.adjPos[position.x][position.y];
 const isSamePosition = (pos1, pos2) => pos1.x == pos2.x && pos1.y == pos2.y;
+export {};
