@@ -17,7 +17,7 @@ declare global {
   const SCAVENGER_MODE: string;
 }
 
-export class World {
+class World {
   gridX: number;
   gridY: number;
   grid: any; // TODO

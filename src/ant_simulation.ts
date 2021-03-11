@@ -14,10 +14,26 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this software.  If not, see <https://www.gnu.org/licenses/>.
 */
-// import { World, Obstacle, Ant, Cell, Food, Nest } from "classes";
-import "p5/global";
+import P5 from "p5";
+
 declare function isLooping(): boolean;
-import { World } from "./classes";
+
+declare class Nest {
+  position: P5.Vector;
+}
+
+declare class Ant {}
+
+declare class World {
+  gridX: number;
+  gridY: number;
+  grid: any; // TODO
+  nest: Nest;
+  adjPos: Array<Array<Array<P5.Vector>>>;
+  ants: Array<Ant>;
+  update(): void;
+  render(): void;
+}
 
 let world: World;
 const CELL_SIZE: number = 9;

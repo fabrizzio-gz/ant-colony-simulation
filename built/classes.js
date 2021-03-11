@@ -1,20 +1,5 @@
 import "p5/global";
-/*import {
-  world,
-  CELL_SIZE,
-  GRID_W,
-  GRID_H,
-  NEST_X,
-  NEST_Y,
-  ANTS,
-  FOOD,
-  FOOD_STOCK,
-  OBSTACLE_COUNT,
-  OBSTACLE_SIZE,
-  DELIVERY_MODE,
-  SCAVENGER_MODE,
-} from "./ant_simulation";*/
-export class World {
+class World {
     constructor(initValues = {
         gridX: GRID_W,
         gridY: GRID_H,
