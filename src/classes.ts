@@ -1,7 +1,7 @@
 class World {
   gridX: number;
   gridY: number;
-  grid: any; // TODO
+  grid: Array<Array<Obstacle | Nest | Food | Cell>>;
   nest: Nest;
   adjPos: Array<Array<Array<p5.Vector>>>;
   ants: Array<Ant>;
@@ -136,7 +136,8 @@ class World {
     }
   }
 
-  // For debugging purposes
+  // For debugging purposes (needs type checking)
+  /* 
   printSteps(toPrint: string = "nest") {
     if (toPrint == "nest") {
       console.log("Distance from nest");
@@ -167,7 +168,7 @@ class World {
         console.log(distance);
       }
     }
-  }
+  } */
 
   update() {
     for (let x = 0; x < this.gridX; x++)
@@ -256,7 +257,7 @@ class Ant extends Obstacle {
       this.reachedFood();
 
     // Update current cell steps count
-    getCell(this.position).stepOnCell();
+    (getCell(this.position) as Cell).stepOnCell();
 
     this.stepsFromNest++;
     if (this.stepsFromFood >= 0) this.stepsFromFood++;
@@ -282,7 +283,7 @@ class Ant extends Obstacle {
     // DELIVERY_MODE
     else {
       newPos = this.getMinNestDistanceCell();
-      if (this.erase) getCell(this.position).eraseFoodTrail();
+      if (this.erase) (getCell(this.position) as Cell).eraseFoodTrail();
     }
 
     if (this.isDiagonal(newPos)) {
@@ -296,27 +297,29 @@ class Ant extends Obstacle {
     if (this.state == SCAVENGER_MODE) this.updateNestDistance();
     // DELIVERY_MODE
     else if (this.stepsFromFood != -1)
-      getCell(this.position).setFoodDistance(this.stepsFromFood);
+      (getCell(this.position) as Cell).setFoodDistance(this.stepsFromFood);
     // TODO update prevPositions
   }
 
   getMinDistanceFood() {
     const initialDistance =
-      getCell(this.position).foodDistance == -1
+      (getCell(this.position) as Cell).foodDistance == -1
         ? Number.MAX_SAFE_INTEGER
-        : getCell(this.position).foodDistance;
+        : (getCell(this.position) as Cell).foodDistance;
     // Return a cell with less food distance, undefined if none
     const newPos = world.adjPos[this.position.x][this.position.y].reduce(
       (foodPos: p5.Vector, nextPos: p5.Vector) => {
         // If nextPos doesn't have a valid value, skip
-        if (world.grid[nextPos.x][nextPos.y].foodDistance == -1) return foodPos;
+        if ((world.grid[nextPos.x][nextPos.y] as Cell).foodDistance == -1)
+          return foodPos;
         // If current foodPos isn't set ( == -1) but next is set
-        if (world.grid[foodPos.x][foodPos.y].foodDistance == -1) return nextPos;
+        if ((world.grid[foodPos.x][foodPos.y] as Cell).foodDistance == -1)
+          return nextPos;
         // If nextPos is a valid value, update to min
         if (
-          world.grid[foodPos.x][foodPos.y].foodDistance != -1 &&
-          world.grid[nextPos.x][nextPos.y].foodDistance <
-            world.grid[foodPos.x][foodPos.y].foodDistance
+          (world.grid[foodPos.x][foodPos.y] as Cell).foodDistance != -1 &&
+          (world.grid[nextPos.x][nextPos.y] as Cell).foodDistance <
+            (world.grid[foodPos.x][foodPos.y] as Cell).foodDistance
         )
           return nextPos;
         return foodPos;
@@ -324,10 +327,12 @@ class Ant extends Obstacle {
     );
 
     // If no improvement, abort
-    if (getCell(newPos).foodDistance >= initialDistance) return undefined;
+    if ((getCell(newPos) as Cell).foodDistance >= initialDistance)
+      return undefined;
 
     // Return newPos if it has a valid foodDistance value
-    if (world.grid[newPos.x][newPos.y].foodDistance != -1) return newPos;
+    if ((world.grid[newPos.x][newPos.y] as Cell).foodDistance != -1)
+      return newPos;
     return undefined;
   }
 
@@ -335,8 +340,8 @@ class Ant extends Obstacle {
     const nextPos = world.adjPos[this.position.x][this.position.y].reduce(
       (minPos: p5.Vector, nextPos: p5.Vector) => {
         if (
-          world.grid[nextPos.x][nextPos.y].nestDistance <
-          world.grid[minPos.x][minPos.y].nestDistance
+          (world.grid[nextPos.x][nextPos.y] as Cell).nestDistance <
+          (world.grid[minPos.x][minPos.y] as Cell).nestDistance
         )
           return nextPos;
         return minPos;
@@ -368,11 +373,12 @@ class Ant extends Obstacle {
   }
 
   updateNestDistance() {
-    if (this.stepsFromNest > getCell(this.position).nestDistance)
+    if (this.stepsFromNest > (getCell(this.position) as Cell).nestDistance)
       // Update ant distance to cell stored value
-      this.stepsFromNest = getCell(this.position).nestDistance;
+      this.stepsFromNest = (getCell(this.position) as Cell).nestDistance;
     // Update cells with ant's new closest distance
-    else getCell(this.position).setCellsNestDistance(this.stepsFromNest);
+    else
+      (getCell(this.position) as Cell).setCellsNestDistance(this.stepsFromNest);
   }
 
   isDiagonal(newPos: p5.Vector) {
@@ -455,10 +461,16 @@ class Cell extends Obstacle {
       (position: p5.Vector) => {
         // Increase cells in same x or y index by +1
         if (position.x == this.position.x || position.y == this.position.y)
-          world.grid[position.x][position.y].setDistance(steps + 1, property);
+          (world.grid[position.x][position.y] as Cell).setDistance(
+            steps + 1,
+            property
+          );
         // Diagonal values, increase by +2
         else
-          world.grid[position.x][position.y].setDistance(steps + 2, property);
+          (world.grid[position.x][position.y] as Cell).setDistance(
+            steps + 2,
+            property
+          );
       },
       this
     );
@@ -573,11 +585,11 @@ class Nest extends Cell {
 }
 
 // Classes helper functions
-const getCell = (position: p5.Vector): Cell =>
+const getCell = (position: p5.Vector): Obstacle | Cell | Food | Nest =>
   world.grid[position.x][position.y];
 
 const getFoodCell = (position: p5.Vector): Food =>
-  world.grid[position.x][position.y];
+  world.grid[position.x][position.y] as Food;
 
 const getAdjCellPos = (position: p5.Vector): Array<p5.Vector> =>
   world.adjPos[position.x][position.y];
