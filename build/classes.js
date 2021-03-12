@@ -109,39 +109,44 @@ class World {
                 food++;
         }
     }
-    // For debugging purposes (needs type checking)
-    /*
-    printSteps(toPrint: string = "nest") {
-      if (toPrint == "nest") {
-        console.log("Distance from nest");
-        for (let y = 0; y < this.gridY; y++) {
-          let distance = "";
-          for (let x = 0; x < this.gridX; x++)
-            if (x == this.nest.position.x && y == this.nest.position.y)
-              distance += "x|";
-            else
-              distance +=
-                this.grid[x][y].nestDistance == Number.MAX_SAFE_INTEGER
-                  ? "-|"
-                  : this.grid[x][y].nestDistance + "|";
-          console.log(distance);
+    // For debugging purposes
+    printSteps(toPrint = "nest") {
+        if (toPrint == "nest") {
+            console.log("Distance from nest");
+            for (let y = 0; y < this.gridY; y++) {
+                let distance = "";
+                for (let x = 0; x < this.gridX; x++)
+                    if (x == this.nest.position.x && y == this.nest.position.y)
+                        distance += "x|";
+                    else
+                        distance +=
+                            this.grid[x][y].type == "Obstacle"
+                                ? "o|"
+                                : this.grid[x][y].nestDistance ==
+                                    Number.MAX_SAFE_INTEGER
+                                    ? "-|"
+                                    : this.grid[x][y].nestDistance + "|";
+                console.log(distance);
+            }
         }
-      } else {
-        console.log("Distance from food sources");
-        for (let y = 0; y < this.gridY; y++) {
-          let distance = "";
-          for (let x = 0; x < this.gridX; x++)
-            if (x == this.nest.position.x && y == this.nest.position.y)
-              distance += "x|";
-            else
-              distance +=
-                this.grid[x][y].foodDistance == -1
-                  ? "-|"
-                  : this.grid[x][y].foodDistance + "|";
-          console.log(distance);
+        else {
+            console.log("Distance from food sources");
+            for (let y = 0; y < this.gridY; y++) {
+                let distance = "";
+                for (let x = 0; x < this.gridX; x++)
+                    if (x == this.nest.position.x && y == this.nest.position.y)
+                        distance += "x|";
+                    else
+                        distance +=
+                            this.grid[x][y].type == "Obstacle"
+                                ? "o|"
+                                : this.grid[x][y].foodDistance == -1
+                                    ? "-|"
+                                    : this.grid[x][y].foodDistance + "|";
+                console.log(distance);
+            }
         }
-      }
-    } */
+    }
     update() {
         for (let x = 0; x < this.gridX; x++)
             for (let y = 0; y < this.gridY; y++)

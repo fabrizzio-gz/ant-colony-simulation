@@ -136,8 +136,7 @@ class World {
     }
   }
 
-  // For debugging purposes (needs type checking)
-  /* 
+  // For debugging purposes
   printSteps(toPrint: string = "nest") {
     if (toPrint == "nest") {
       console.log("Distance from nest");
@@ -148,9 +147,12 @@ class World {
             distance += "x|";
           else
             distance +=
-              this.grid[x][y].nestDistance == Number.MAX_SAFE_INTEGER
+              this.grid[x][y].type == "Obstacle"
+                ? "o|"
+                : (this.grid[x][y] as Cell).nestDistance ==
+                  Number.MAX_SAFE_INTEGER
                 ? "-|"
-                : this.grid[x][y].nestDistance + "|";
+                : (this.grid[x][y] as Cell).nestDistance + "|";
         console.log(distance);
       }
     } else {
@@ -162,13 +164,15 @@ class World {
             distance += "x|";
           else
             distance +=
-              this.grid[x][y].foodDistance == -1
+              this.grid[x][y].type == "Obstacle"
+                ? "o|"
+                : (this.grid[x][y] as Cell).foodDistance == -1
                 ? "-|"
-                : this.grid[x][y].foodDistance + "|";
+                : (this.grid[x][y] as Cell).foodDistance + "|";
         console.log(distance);
       }
     }
-  } */
+  }
 
   update() {
     for (let x = 0; x < this.gridX; x++)
