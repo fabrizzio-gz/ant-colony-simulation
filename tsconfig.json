@@ -5,6 +5,7 @@
         "allowJs": true,
         "checkJs": true,
         "noImplicitReturns": true,
+        "noImplicitAny": true,
         "noFallthroughCasesInSwitch": false,
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,

@@ -40,7 +40,7 @@ class World {
     this.renderAllOnce();
   }
 
-  initGrid() {
+  initGrid(): Array<Array<Obstacle | Nest | Food | Cell>> {
     const grid = [];
     for (let x = 0; x < this.gridX; x++) {
       grid.push([]); // add cols
@@ -71,8 +71,8 @@ class World {
     }
   }
 
-  getAdjPositions() {
-    const adjPos = [];
+  getAdjPositions(): Array<Array<Array<p5.Vector>>> {
+    const adjPos: Array<Array<Array<p5.Vector>>> = [];
     for (let x = 0; x < this.gridX; x++) {
       adjPos.push([]);
       for (let y = 0; y < this.gridY; y++) {
