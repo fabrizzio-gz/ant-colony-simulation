@@ -314,8 +314,8 @@ class Ant extends Obstacle {
     }
     reachedFood() {
         this.stepsFromFood = 0;
-        getFoodCell(this.position).eatFood();
-        if (getFoodCell(this.position).foodLeft <= 0)
+        getCell(this.position).eatFood();
+        if (getCell(this.position).foodLeft <= 0)
             this.startEraseFoodTrail();
         this.state = DELIVERY_MODE;
     }
@@ -474,6 +474,5 @@ class Nest extends Cell {
 }
 // Classes helper functions
 const getCell = (position) => world.grid[position.x][position.y];
-const getFoodCell = (position) => world.grid[position.x][position.y];
 const getAdjCellPos = (position) => world.adjPos[position.x][position.y];
 const isSamePosition = (pos1, pos2) => pos1.x == pos2.x && pos1.y == pos2.y;

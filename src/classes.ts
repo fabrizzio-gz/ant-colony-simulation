@@ -391,8 +391,9 @@ class Ant extends Obstacle {
 
   reachedFood() {
     this.stepsFromFood = 0;
-    getFoodCell(this.position).eatFood();
-    if (getFoodCell(this.position).foodLeft <= 0) this.startEraseFoodTrail();
+    (getCell(this.position) as Food).eatFood();
+    if ((getCell(this.position) as Food).foodLeft <= 0)
+      this.startEraseFoodTrail();
     this.state = DELIVERY_MODE;
   }
 
@@ -591,9 +592,6 @@ class Nest extends Cell {
 // Classes helper functions
 const getCell = (position: p5.Vector): Obstacle | Cell | Food | Nest =>
   world.grid[position.x][position.y];
-
-const getFoodCell = (position: p5.Vector): Food =>
-  world.grid[position.x][position.y] as Food;
 
 const getAdjCellPos = (position: p5.Vector): Array<p5.Vector> =>
   world.adjPos[position.x][position.y];
