@@ -1,28 +1,9 @@
-import P5 from "p5";
-/// <reference types="p5/global" />
-
-declare global {
-  let world: World;
-  const CELL_SIZE: number;
-  const GRID_W: number;
-  const GRID_H: number;
-  const NEST_X: number;
-  const NEST_Y: number;
-  const ANTS: number;
-  const FOOD: number;
-  const FOOD_STOCK: number;
-  const OBSTACLE_COUNT: number;
-  const OBSTACLE_SIZE: number;
-  const DELIVERY_MODE: string;
-  const SCAVENGER_MODE: string;
-}
-
 class World {
   gridX: number;
   gridY: number;
   grid: any; // TODO
   nest: Nest;
-  adjPos: Array<Array<Array<P5.Vector>>>;
+  adjPos: Array<Array<Array<p5.Vector>>>;
   ants: Array<Ant>;
 
   constructor(
@@ -76,7 +57,7 @@ class World {
       let expansions = OBSTACLE_SIZE;
       do {
         this.grid[x][y].createObstacle(this);
-        this.adjPos[x][y].forEach((position: P5.Vector) => {
+        this.adjPos[x][y].forEach((position: p5.Vector) => {
           if (this.grid[position.x][position.y].type != "Nest")
             this.grid[position.x][position.y] = new Obstacle(
               position.x,
@@ -212,7 +193,7 @@ class World {
 }
 
 class Obstacle {
-  position: P5.Vector;
+  position: p5.Vector;
   size: number;
   type: string;
 
@@ -247,7 +228,7 @@ class Ant extends Obstacle {
   stepsFromNest: number;
   stepsFromFood: number;
   erase: boolean;
-  prevPosition: P5.Vector;
+  prevPosition: p5.Vector;
 
   static maxFuel = Math.max(GRID_W, GRID_H) * 1.5;
 
@@ -281,7 +262,7 @@ class Ant extends Obstacle {
     if (this.stepsFromFood >= 0) this.stepsFromFood++;
 
     // Getting new position
-    let newPos: P5.Vector;
+    let newPos: p5.Vector;
     if (this.state == SCAVENGER_MODE) {
       // Try getting food trail, else move randomly
       // If initial position is the nest, then move randomly
@@ -326,7 +307,7 @@ class Ant extends Obstacle {
         : getCell(this.position).foodDistance;
     // Return a cell with less food distance, undefined if none
     const newPos = world.adjPos[this.position.x][this.position.y].reduce(
-      (foodPos: P5.Vector, nextPos: P5.Vector) => {
+      (foodPos: p5.Vector, nextPos: p5.Vector) => {
         // If nextPos doesn't have a valid value, skip
         if (world.grid[nextPos.x][nextPos.y].foodDistance == -1) return foodPos;
         // If current foodPos isn't set ( == -1) but next is set
@@ -352,7 +333,7 @@ class Ant extends Obstacle {
 
   getMinNestDistanceCell() {
     const nextPos = world.adjPos[this.position.x][this.position.y].reduce(
-      (minPos: P5.Vector, nextPos: P5.Vector) => {
+      (minPos: p5.Vector, nextPos: p5.Vector) => {
         if (
           world.grid[nextPos.x][nextPos.y].nestDistance <
           world.grid[minPos.x][minPos.y].nestDistance
@@ -381,7 +362,7 @@ class Ant extends Obstacle {
     this.prevPosition.y = this.position.y;
   }
 
-  updatePosition(newPos: P5.Vector) {
+  updatePosition(newPos: p5.Vector) {
     this.position.x = newPos.x;
     this.position.y = newPos.y;
   }
@@ -394,7 +375,7 @@ class Ant extends Obstacle {
     else getCell(this.position).setCellsNestDistance(this.stepsFromNest);
   }
 
-  isDiagonal(newPos: P5.Vector) {
+  isDiagonal(newPos: p5.Vector) {
     return !(this.position.x == newPos.x || this.position.y == newPos.y);
   }
 
@@ -471,7 +452,7 @@ class Cell extends Obstacle {
     this.setDistance(steps, property);
 
     world.adjPos[this.position.x][this.position.y].forEach(
-      (position: P5.Vector) => {
+      (position: p5.Vector) => {
         // Increase cells in same x or y index by +1
         if (position.x == this.position.x || position.y == this.position.y)
           world.grid[position.x][position.y].setDistance(steps + 1, property);
@@ -592,14 +573,14 @@ class Nest extends Cell {
 }
 
 // Classes helper functions
-const getCell = (position: P5.Vector): Cell =>
+const getCell = (position: p5.Vector): Cell =>
   world.grid[position.x][position.y];
 
-const getFoodCell = (position: P5.Vector): Food =>
+const getFoodCell = (position: p5.Vector): Food =>
   world.grid[position.x][position.y];
 
-const getAdjCellPos = (position: P5.Vector): Array<P5.Vector> =>
+const getAdjCellPos = (position: p5.Vector): Array<p5.Vector> =>
   world.adjPos[position.x][position.y];
 
-const isSamePosition = (pos1: P5.Vector, pos2: P5.Vector): boolean =>
+const isSamePosition = (pos1: p5.Vector, pos2: p5.Vector): boolean =>
   pos1.x == pos2.x && pos1.y == pos2.y;

@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "module": "none",
         "target": "es6",
         "allowJs": true,
         "checkJs": true,
@@ -7,11 +8,12 @@
         "noFallthroughCasesInSwitch": false,
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
-        "outDir": "./built",
-        "allowSyntheticDefaultImports": true
+        "outDir": "./build",
+        "rootDir": "./src/"
     },
     "include": [
-        "./src/**/*"
+      "./src/**/*",
+      "./global.d.ts"
     ]
 }
 
