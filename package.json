@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/fabrizzio-gz/ant-colony-simulation/issues"
   },
-  "homepage": "https://github.com/fabrizzio-gz/ant-colony-simulation#readme"
+  "homepage": "https://github.com/fabrizzio-gz/ant-colony-simulation#readme",
+  "dependencies": {
+    "p5": "^1.4.1"
+  },
+  "devDependencies": {
+    "@types/p5": "^1.4.0"
+  }
 }
