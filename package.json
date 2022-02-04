@@ -1,0 +1,19 @@
+{
+  "name": "ant-colony-simulation",
+  "version": "1.0.0",
+  "description": "Ant colony simulation",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fabrizzio-gz/ant-colony-simulation.git"
+  },
+  "keywords": [
+    "simulation",
+    "ants"
+  ],
+  "author": "fgz",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/fabrizzio-gz/ant-colony-simulation/issues"
+  },
+  "homepage": "https://github.com/fabrizzio-gz/ant-colony-simulation#readme"
+}
