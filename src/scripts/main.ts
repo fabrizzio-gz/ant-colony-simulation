@@ -75,7 +75,7 @@ const toggle = (): void => {
   else loop();
 };
 
-const reset = (): void => {
+const resetSimulation = (): void => {
   world = createWorld();
 };
 
