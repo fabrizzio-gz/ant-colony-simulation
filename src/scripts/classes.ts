@@ -17,15 +17,8 @@ class World {
       food: FOOD,
     }
   ) {
-    const {
-      gridX,
-      gridY,
-      obstacleCount,
-      ants,
-      nestX,
-      nestY,
-      food,
-    } = initValues;
+    const { gridX, gridY, obstacleCount, ants, nestX, nestY, food } =
+      initValues;
     this.gridX = gridX;
     this.gridY = gridY;
     this.grid = this.initGrid();

@@ -2,7 +2,4 @@
 *~
 *#*
 *.bak
-index.html
-p5.js
-build/
 node_modules/

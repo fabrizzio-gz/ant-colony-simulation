@@ -14,8 +14,6 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this software.  If not, see <https://www.gnu.org/licenses/>.
 */
-declare function isLooping(): boolean;
-
 let world: World;
 const CELL_SIZE: number = 9;
 const GRID_W: number = 50;
@@ -68,12 +66,12 @@ const slow = (): void => {
   frameRate(5);
 };
 
-const normal = (): void => {
+const normalSpeed = (): void => {
   frameRate(10);
 };
 
 const toggle = (): void => {
-  if (isLooping()) noLoop();
+  if (isLooping() as unknown) noLoop();
   else loop();
 };
 
@@ -95,6 +93,6 @@ const createWorld = (): World => {
 };
 
 const step = (): void => {
-  if (isLooping()) noLoop();
+  if (isLooping() as unknown) noLoop();
   draw();
 };

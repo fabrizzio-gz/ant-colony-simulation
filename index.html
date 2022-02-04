@@ -2,11 +2,10 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <!-- <script src="p5.js" type="text/javascript"></script> -->
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.2.0/lib/p5.js"></script>
-    <script src="build/ant_simulation.js" type="text/javascript"></script>
-    <script src="build/classes.js" type="text/javascript"></script>
-    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.js"></script>
+    <script src="build/scripts/main.js" type="text/javascript"></script>
+    <script src="build/scripts/classes.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="build/css/styles.css" />
   </head>
   <body>
     <div class="grid-container">
@@ -51,7 +50,7 @@
       </div>
       <div class="button-container">
         <button id="slow-button" onclick="slow()">slow</button>
-        <button id="normal-button" onclick="normal()">normal</button>
+        <button id="normal-button" onclick="normalSpeed()">normal</button>
         <button id="fast-button" onclick="fast()">fast</button>
         <button id="reset-button" onclick="reset()">reset</button>
         <button id="toggle-button" onclick="toggle()">toggle</button>

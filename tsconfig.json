@@ -1,20 +1,17 @@
 {
-    "compilerOptions": {
-        "module": "none",
-        "target": "es6",
-        "allowJs": true,
-        "checkJs": true,
-        "noImplicitReturns": true,
-        "noImplicitAny": true,
-        "noFallthroughCasesInSwitch": false,
-        "allowUnreachableCode": false,
-        "allowUnusedLabels": false,
-        "outDir": "./build",
-        "rootDir": "./src/"
-    },
-    "include": [
-      "./src/**/*",
-      "./global.d.ts"
-    ]
+  "compilerOptions": {
+    "module": "none",
+    "target": "es6",
+    "allowJs": true,
+    "checkJs": true,
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "noFallthroughCasesInSwitch": false,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "types": ["p5/global"],
+    "outDir": "./build",
+    "rootDir": "./src/"
+  },
+  "include": ["./src/**/*", "./global.d.ts"]
 }
-
