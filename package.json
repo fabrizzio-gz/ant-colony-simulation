@@ -6,6 +6,10 @@
     "type": "git",
     "url": "git+https://github.com/fabrizzio-gz/ant-colony-simulation.git"
   },
+  "scripts": {
+    "start": "xdg-open index.html",
+    "build": "tsc"
+  },
   "keywords": [
     "simulation",
     "ants"
