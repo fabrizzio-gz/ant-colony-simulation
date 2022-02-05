@@ -1,6 +1,6 @@
-![tekst alternatywny](img/ant-sim.png)
-
 # Ant colony simulation
+
+![tekst alternatywny](img/ant-sim.png)
 
 A simulation of an ant colony with ants scavenging for food sources.
 
